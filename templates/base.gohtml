@@ -1,0 +1,19 @@
+{{ define "base" }}
+    <!doctype html>
+    <html lang="it">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <title>UniboCalendar | {{template "title" }}</title>
+
+        <link href="/static/style.css" rel="stylesheet">
+    </head>
+
+    <body class="m-4">
+    {{ template "body" .}}
+    </body>
+
+    </html>
+{{ end }}

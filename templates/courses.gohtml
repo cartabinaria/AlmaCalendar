@@ -1,0 +1,33 @@
+{{ template "base" . }}
+{{ define "title" }}Courses{{ end }}
+
+{{ define "body" }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>A.A.</th>
+            <th>Descrizione</th>
+            <th>Campus</th>
+        </tr>
+        </thead>
+        {{ range .courses }}
+            {{ $course := .}}
+            <tr>
+                <td>{{.AnnoAccademico}}</td>
+                <td>{{.Tipologia}} in {{ printf "%.100s" .Descrizione }}</td>
+                <td>{{.Campus}}</td>
+
+                {{range $anno := anniRange .DurataAnni}}
+                    <td>
+                        <a class="link" href="/cal/{{$course.Codice}}/{{.}}">
+                           Calendario Anno {{.}}
+                        </a>
+                    </td>
+                {{end}}
+            </tr>
+        {{ end }}
+    </table>
+
+{{ end }}
+
+

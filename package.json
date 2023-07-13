@@ -1,0 +1,17 @@
+{
+  "name": "unibocalendar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "css:build": "tailwindcss -i templates/style.css -o static/style.css",
+    "css:watch": "tailwindcss -i templates/style.css -o static/style.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "daisyui": "^3.2.1",
+    "tailwindcss": "^3.3.3"
+  }
+}
