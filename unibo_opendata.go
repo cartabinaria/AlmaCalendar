@@ -66,7 +66,7 @@ func downloadOpenDataIfNewer() {
 		return
 	}
 
-	courses, err := resource.DownloadCourses()
+	courses, err := resource.Download()
 	if err != nil {
 		log.Panic().Err(err).Msg("Unable to download courses")
 	}

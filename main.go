@@ -3,7 +3,8 @@ package main
 import (
 	"embed"
 	_ "embed"
-	"fmt"
+	fmt "fmt"
+	ics "github.com/arran4/golang-ical"
 	"io/fs"
 	"net/http"
 	"os"
@@ -91,45 +92,53 @@ func getCoursesCal(courses unibo.Courses) func(c *gin.Context) {
 		id := c.Param("id")
 		anno := c.Param("anno")
 
+		// Check if id is a number, otherwise return 400
 		annoInt, err := strconv.Atoi(anno)
 		if err != nil {
-			_ = c.AbortWithError(http.StatusBadRequest, err)
+			c.String(http.StatusBadRequest, "Invalid year")
 			return
 		}
 
-		var course *unibo.Course
-		for _, c := range courses {
-			if strconv.FormatInt(int64(c.Codice), 10) == id {
-				course = &c
-				break
-			}
-		}
-
-		if course == nil {
-			c.Status(http.StatusNotFound)
+		// Check if id is a number, otherwise return 400
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			c.String(http.StatusBadRequest, "Invalid id")
 			return
 		}
 
+		// Check if course exists, otherwise return 404
+		course, found := courses.FindById(idInt)
+		if !found {
+			c.String(http.StatusNotFound, "Course not found")
+			return
+		}
+
+		// Try to retrieve timetable, otherwise return 500
 		timetable, err := course.RetrieveTimetable(annoInt)
 		if err != nil {
-			_ = c.AbortWithError(http.StatusInternalServerError, err)
+			_ = c.Error(err)
+			c.String(http.StatusInternalServerError, "Unable to retrieve timetable")
 			return
 		}
 
-		ics := unibo.Timetable(timetable).ToICS()
+		cal := createCal(timetable, course, annoInt)
 
-		calName := fmt.Sprintf("%s - %d anno", course.Descrizione, annoInt)
-		ics.SetName(calName)
-
-		calDesc := fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s", annoInt, course.Descrizione)
-		ics.SetDescription(calDesc)
-
-		err = ics.SerializeTo(c.Writer)
+		err = cal.SerializeTo(c.Writer)
 		if err != nil {
-			_ = c.AbortWithError(http.StatusInternalServerError, err)
+			_ = c.Error(err)
+			c.String(http.StatusInternalServerError, "Unable to serialize calendar")
 			return
 		}
 		c.Status(http.StatusOK)
 
 	}
+}
+
+func createCal(timetable unibo.Timetable, course unibo.Course, year int) (cal *ics.Calendar) {
+	cal = timetable.ToICS()
+	cal.SetName(fmt.Sprintf("%s - %d year", course.Descrizione, year))
+	cal.SetDescription(
+		fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s", year, course.Descrizione),
+	)
+	return
 }

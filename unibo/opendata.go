@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -45,7 +46,10 @@ type Resources []Resource
 
 func (r Resources) GetByAlias(alias string) *Resource {
 	for _, resource := range r {
+		// Some resources have multiple aliases
 		rAliases := strings.Split(resource.Alias, ", ")
+
+		// Check if the alias is one of the aliases of the resource
 		for _, rAlias := range rAliases {
 			if rAlias == alias {
 				return &resource
@@ -64,81 +68,98 @@ type Resource struct {
 	Alias     string `json:"alias"`
 }
 
-func (r Resource) DownloadCourses() ([]Course, error) {
-	if strings.HasSuffix(r.Url, ".csv") {
-		req, err := Client.Get(r.Url)
-		if err != nil {
-			return nil, err
-		}
-
-		reader := csv.NewReader(req.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		courses := make([]Course, 0, 100)
-
-		// Skip first line
-		_, err = reader.Read()
-		if err != nil {
-			return nil, err
-		}
-
-		for {
-			row, err := reader.Read()
-			if err != nil {
-				if err == io.EOF {
-					break
-				} else {
-					return nil, err
-				}
-			}
-
-			code, err := strconv.ParseInt(row[2], 10, 32)
-			if err != nil {
-				return nil, err
-			}
-
-			years, err := strconv.ParseInt(row[9], 10, 32)
-			if err != nil {
-				return nil, err
-			}
-
-			international, err := strconv.ParseBool(row[10])
-			if err != nil {
-				return nil, err
-			}
-
-			courses = append(courses, Course{
-				AnnoAccademico:       row[0],
-				Immatricolabile:      row[1],
-				Codice:               int(code),
-				Descrizione:          row[3],
-				Url:                  row[4],
-				Campus:               row[5],
-				SedeDidattica:        row[6],
-				Ambiti:               row[7],
-				Tipologia:            row[8],
-				DurataAnni:           int(years),
-				Internazionale:       international,
-				InternazionaleTitolo: row[11],
-				InternazionaleLingua: row[12],
-				Lingue:               row[13],
-				Accesso:              row[14],
-			})
-		}
-		return courses, nil
+func (r Resource) Download() ([]Course, error) {
+	// Get the resource
+	res, err := Client.Get(r.Url)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("resource is not a csv file")
+	// Parse the body
+	var courses []Course
+	if strings.HasSuffix(r.Url, ".csv") {
+		courses, err = r.downloadCSV(res.Body)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// Close the body
+	err = res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if courses == nil {
+		return nil, fmt.Errorf("resource is not a csv file")
+	}
+
+	return courses, nil
 }
 
-func getPackageShowUrl(id string) string {
+func (r Resource) downloadCSV(body io.Reader) ([]Course, error) {
+	courses := make([]Course, 0, 100)
+
+	reader := csv.NewReader(body)
+
+	// Skip first line
+	_, err := reader.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		row, err := reader.Read()
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
+		}
+
+		code, err := strconv.ParseInt(row[2], 10, 32)
+		if err != nil {
+			return nil, err
+		}
+
+		years, err := strconv.ParseInt(row[9], 10, 32)
+		if err != nil {
+			return nil, err
+		}
+
+		international, err := strconv.ParseBool(row[10])
+		if err != nil {
+			return nil, err
+		}
+
+		courses = append(courses, Course{
+			AnnoAccademico:       row[0],
+			Immatricolabile:      row[1],
+			Codice:               int(code),
+			Descrizione:          row[3],
+			Url:                  row[4],
+			Campus:               row[5],
+			SedeDidattica:        row[6],
+			Ambiti:               row[7],
+			Tipologia:            row[8],
+			DurataAnni:           int(years),
+			Internazionale:       international,
+			InternazionaleTitolo: row[11],
+			InternazionaleLingua: row[12],
+			Lingue:               row[13],
+			Accesso:              row[14],
+		})
+	}
+	return courses, nil
+}
+
+func GetPackageUrl(id string) string {
 	return fmt.Sprintf("%s/api/3/action/package_show?id=%s", rootUnibo, id)
 }
 
 func GetPackage(id string) (*Package, error) {
-	url := getPackageShowUrl(id)
+	url := GetPackageUrl(id)
 
 	html, err := Client.Get(url)
 	if err != nil {
@@ -214,12 +235,11 @@ func (c Course) RetrieveCourseWebsiteId() (CourseWebsiteId, error) {
 	id := found[1]
 
 	// laurea/IngegneriaInformatica -> IngegneriaInformatica
-
 	split := strings.Split(id, "/")
 	return CourseWebsiteId{split[0], split[1]}, nil
 }
 
-func (c Course) RetrieveTimetable(anno int) ([]TimetableEvent, error) {
+func (c Course) RetrieveTimetable(anno int) (Timetable, error) {
 	id, err := c.RetrieveCourseWebsiteId()
 	if err != nil {
 		return nil, err
@@ -233,6 +253,7 @@ func (c Course) RetrieveTimetable(anno int) ([]TimetableEvent, error) {
 	return timetable, nil
 }
 
+// Courses satisfies [sort.Interface]
 type Courses []Course
 
 func (c Courses) Len() int {
@@ -240,14 +261,25 @@ func (c Courses) Len() int {
 }
 
 func (c Courses) Less(i, j int) bool {
-	sort := strings.Compare(c[i].AnnoAccademico, c[j].AnnoAccademico)
-	if sort == 0 {
-		sort = strings.Compare(c[i].Descrizione, c[j].Descrizione)
+	if c[i].Codice != c[j].Codice {
+		return c[i].Codice < c[j].Codice
 	}
 
-	return sort < 0
+	return c[i].AnnoAccademico < c[j].AnnoAccademico
 }
 
 func (c Courses) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
+}
+
+func (c Courses) FindById(id int) (Course, bool) {
+	i, found := sort.Find(c.Len(), func(i int) int {
+		return c[i].Codice - id
+	})
+
+	if found {
+		return c[i], true
+	} else {
+		return Course{}, false
+	}
 }
