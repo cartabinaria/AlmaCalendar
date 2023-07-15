@@ -7,9 +7,10 @@ import (
 )
 
 func BenchmarkCourses_FindById(b *testing.B) {
-	courses := make(Courses, 0, 1000)
+	courses := Courses{}
 	for i := 0; i < 1000; i++ {
-		courses = append(courses, genRandomCourse())
+		course := genRandomCourse()
+		courses[course.Codice] = course
 	}
 
 	b.ResetTimer()
@@ -39,25 +40,14 @@ func genRandomCourse() Course {
 }
 
 func TestCourses_FindById(t *testing.T) {
-	courses := Courses{
-		{
-			Codice: 1,
-		},
-		{
-			Codice: 2,
-		},
-		{
-			Codice: 3,
-		},
-	}
+	courses := Courses{1: {Codice: 1}, 2: {Codice: 2}, 3: {Codice: 3}}
 
 	course, found := courses.FindById(2)
 	if !found {
-		t.Error("course not found")
+		t.Fatal("course not found")
 	}
 
 	if course.Codice != 2 {
 		t.Error("wrong course")
 	}
-
 }

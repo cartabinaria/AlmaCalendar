@@ -91,24 +91,31 @@ func downloadOpenDataIfNewer() {
 	log.Info().Msg("Opendata file downloaded")
 }
 
-func openOpenDataFile() (courses []unibo.Course, err error) {
+func openOpenDataFile() (unibo.Courses, error) {
 	// Open file
 	file, err := os.Open(coursesPathJson)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Decode json
+	courses := make([]unibo.Course, 0)
 	err = json.NewDecoder(file).Decode(&courses)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Close file
 	err = file.Close()
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	// Create the map
+	courseMap := make(unibo.Courses)
+	for _, course := range courses {
+		courseMap[course.Codice] = course
+	}
+
+	return courseMap, nil
 }

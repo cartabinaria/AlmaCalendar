@@ -253,7 +253,7 @@ func (c Course) RetrieveTimetable(anno int) (Timetable, error) {
 }
 
 // Courses satisfies [sort.Interface]
-type Courses []Course
+type Courses map[int]Course
 
 func (c Courses) Len() int {
 	return len(c)
@@ -271,11 +271,7 @@ func (c Courses) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
 }
 
-func (c Courses) FindById(id int) (Course, bool) {
-	for _, course := range c {
-		if course.Codice == id {
-			return course, true
-		}
-	}
-	return Course{}, false
+func (c Courses) FindById(id int) (course Course, found bool) {
+	course, found = c[id]
+	return
 }
