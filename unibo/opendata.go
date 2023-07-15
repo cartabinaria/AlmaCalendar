@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -273,13 +272,10 @@ func (c Courses) Swap(i, j int) {
 }
 
 func (c Courses) FindById(id int) (Course, bool) {
-	i, found := sort.Find(c.Len(), func(i int) int {
-		return c[i].Codice - id
-	})
-
-	if found {
-		return c[i], true
-	} else {
-		return Course{}, false
+	for _, course := range c {
+		if course.Codice == id {
+			return course, true
+		}
 	}
+	return Course{}, false
 }

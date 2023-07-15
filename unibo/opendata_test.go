@@ -37,3 +37,27 @@ func genRandomCourse() Course {
 		SedeDidattica:        lo.RandomString(10, lo.LettersCharset),
 	}
 }
+
+func TestCourses_FindById(t *testing.T) {
+	courses := Courses{
+		{
+			Codice: 1,
+		},
+		{
+			Codice: 2,
+		},
+		{
+			Codice: 3,
+		},
+	}
+
+	course, found := courses.FindById(2)
+	if !found {
+		t.Error("course not found")
+	}
+
+	if course.Codice != 2 {
+		t.Error("wrong course")
+	}
+
+}
