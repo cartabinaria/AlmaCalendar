@@ -44,12 +44,6 @@ func downloadOpenDataIfNewer() {
 		log.Panic().Err(err).Msg("Unable to parse last modified time")
 	}
 
-	// Create data directory if not exists
-	err = os.MkdirAll(path.Dir(coursesPathJson), os.ModePerm)
-	if err != nil {
-		log.Panic().Err(err).Msg("Unable to create data directory")
-	}
-
 	old := false
 	// Get file last modified time, if file does not exist return lastMod.Url
 	stat, err := os.Stat(coursesPathJson)
@@ -78,20 +72,42 @@ func downloadOpenDataIfNewer() {
 		return strings.Contains(c.AnnoAccademico, strconv.Itoa(actualYear))
 	})
 
-	jsonFile, err := os.Create(coursesPathJson)
+	err = saveData(courses)
 	if err != nil {
-		log.Panic().Err(err).Msg("Unable to create json file")
-	}
-
-	err = json.NewEncoder(jsonFile).Encode(courses)
-	if err != nil {
-		log.Panic().Err(err).Msg("Unable to encode json file")
+		log.Panic().Err(err).Msg("Unable to save courses")
 	}
 
 	log.Info().Msg("Opendata file downloaded")
 }
 
-func openOpenDataFile() (unibo.Courses, error) {
+func saveData(courses []unibo.Course) error {
+	err := createDataFolder()
+	if err != nil {
+		return err
+	}
+
+	jsonFile, err := os.Create(coursesPathJson)
+	if err != nil {
+		return err
+	}
+
+	err = json.NewEncoder(jsonFile).Encode(courses)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createDataFolder() error {
+	err := os.MkdirAll(path.Dir(coursesPathJson), os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func openData() (unibo.Courses, error) {
 	// Open file
 	file, err := os.Open(coursesPathJson)
 	if err != nil {

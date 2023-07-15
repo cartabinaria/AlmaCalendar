@@ -5,11 +5,13 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
@@ -17,12 +19,19 @@ const (
 )
 
 var (
-	reg    = regexp.MustCompile(`<a title="Sito del corso" href="https://corsi\.unibo\.it/(.+?)"`)
+	reg = regexp.MustCompile(`<a title="Sito del corso" href="https://corsi\.unibo\.it/(.+?)"`)
+
+	// Client is the http client used to make requests.
+	// It is used to set a custom User-Agent.
 	Client = http.Client{
 		Transport: &transport{
 			http.DefaultTransport,
 		},
 	}
+
+	// A cached map of the [Course.Codice] to [CourseWebsiteId].
+	// It is set when the course website id is scraped in GetCourseWebsiteId.
+	websiteIdCache = sync.Map{}
 )
 
 type transport struct {
@@ -204,7 +213,31 @@ type CourseWebsiteId struct {
 	Id        string
 }
 
-func (c Course) RetrieveCourseWebsiteId() (CourseWebsiteId, error) {
+// GetCourseWebsiteId returns the [CourseWebsiteId] of the course.
+//
+// If the course website id is already set, it returns it,
+// otherwise it scrapes it from the course website.
+func (c Course) GetCourseWebsiteId() (CourseWebsiteId, error) {
+
+	// If the course website id is already in the cache, return it
+	websiteIdAny, found := websiteIdCache.Load(c.Codice)
+	if found {
+		return websiteIdAny.(CourseWebsiteId), nil
+	}
+
+	// Scrape the course website id and set it
+	websiteId, err := c.scrapeCourseWebsiteId()
+	if err != nil {
+		return CourseWebsiteId{}, err
+	}
+
+	websiteIdCache.Store(c.Codice, websiteId)
+	return websiteId, nil
+}
+
+func (c Course) scrapeCourseWebsiteId() (CourseWebsiteId, error) {
+	log.Debug().Int("course", c.Codice).Msg("scraping course website id")
+
 	resp, err := Client.Get(c.Url)
 	if err != nil {
 		return CourseWebsiteId{}, err
@@ -239,7 +272,7 @@ func (c Course) RetrieveCourseWebsiteId() (CourseWebsiteId, error) {
 }
 
 func (c Course) RetrieveTimetable(anno int) (Timetable, error) {
-	id, err := c.RetrieveCourseWebsiteId()
+	id, err := c.GetCourseWebsiteId()
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +304,7 @@ func (c Courses) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
 }
 
-func (c Courses) FindById(id int) (course Course, found bool) {
-	course, found = c[id]
-	return
+func (c Courses) FindById(id int) (*Course, bool) {
+	course, found := c[id]
+	return &course, found
 }

@@ -54,7 +54,7 @@ func main() {
 	downloadOpenDataIfNewer()
 
 	var courses unibo.Courses
-	courses, err := openOpenDataFile()
+	courses, err := openData()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to open open data file")
 	}
@@ -79,7 +79,7 @@ func main() {
 		})
 	})
 
-	r.GET("/cal/:id/:anno", getCoursesCal(courses))
+	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
 
 	err = r.Run()
 	if err != nil {
@@ -87,7 +87,7 @@ func main() {
 	}
 }
 
-func getCoursesCal(courses unibo.Courses) func(c *gin.Context) {
+func getCoursesCal(courses *unibo.Courses) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id := c.Param("id")
 		anno := c.Param("anno")
@@ -134,7 +134,7 @@ func getCoursesCal(courses unibo.Courses) func(c *gin.Context) {
 	}
 }
 
-func createCal(timetable unibo.Timetable, course unibo.Course, year int) (cal *ics.Calendar) {
+func createCal(timetable unibo.Timetable, course *unibo.Course, year int) (cal *ics.Calendar) {
 	cal = timetable.ToICS()
 	cal.SetName(fmt.Sprintf("%s - %d year", course.Descrizione, year))
 	cal.SetDescription(
