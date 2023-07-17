@@ -119,8 +119,7 @@ func getCoursesCal(courses *unibo.CoursesMap) func(c *gin.Context) {
 
 		cacheKey := fmt.Sprintf("%s-%s", id, anno)
 		if cal, found := calcache.Get(cacheKey); found {
-			c.Header("Content-Type", "text/calendar; charset=utf-8")
-			c.String(http.StatusOK, cal.(*bytes.Buffer).String())
+			successCalendar(c, cal.(*bytes.Buffer))
 			return
 		}
 
@@ -168,9 +167,19 @@ func getCoursesCal(courses *unibo.CoursesMap) func(c *gin.Context) {
 		}
 		calcache.Set(cacheKey, buf, cache.DefaultExpiration)
 
-		c.Header("Content-Type", "text/calendar; charset=utf-8")
-		c.String(http.StatusOK, buf.String())
+		successCalendar(c, buf)
 	}
+}
+
+func successCalendar(c *gin.Context, cal *bytes.Buffer) {
+	c.Header("Content-Type", "text/calendar; charset=utf-8")
+	c.Header("Content-Disposition", "attachment; filename=lezioni.ics")
+	// Allow CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization")
+	c.Header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+
+	c.String(http.StatusOK, cal.String())
 }
 
 func createCal(timetable unibo.Timetable, course *unibo.Course, year int) (cal *ics.Calendar) {

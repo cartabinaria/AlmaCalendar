@@ -18,6 +18,7 @@
             <div class="join mt-2 cal">
                 <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
                 <button class="btn btn-accent join-item">Copia</button>
+                <a class="btn btn-accent join-item open">Apri online</a>
             </div>
         </div>
 
@@ -29,10 +30,13 @@
 
         for (const el of elements) {
             const pre = el.getElementsByTagName("pre")[0]
-            const btn = el.getElementsByTagName("button")[0]
+            const btnCopyUrl = el.getElementsByTagName("button")[0]
+            const aOpen = el.getElementsByTagName("a")[0]
+
+            const path = pre.innerHTML;
 
 
-            pre.innerHTML = `webcal://${url.host}${pre.innerHTML}`;
+            pre.innerHTML = `webcal://${url.host}${path}`;
 
             // Select all text on click
             pre.addEventListener("click", () => {
@@ -43,9 +47,16 @@
                 sel.addRange(range);
             });
 
-            btn.addEventListener("click", () => {
+            btnCopyUrl.addEventListener("click", () => {
                 navigator.clipboard.writeText(pre.innerHTML);
             });
+
+            aOpen.href = `https://larrybolt.github.io/online-ics-feed-viewer/#` + new URLSearchParams({
+                feed: `${url.origin}${path}`,
+                cors: false,
+                title: "Lezioni",
+                hideinput: true
+            })
         }
     </script>
 {{ end }}
