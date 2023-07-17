@@ -2,13 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/rs/zerolog/log"
-	"github.com/samber/lo"
 	"os"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"github.com/samber/lo"
+
 	"unibocalendar/unibo"
 )
 
@@ -100,11 +102,7 @@ func saveData(courses []unibo.Course) error {
 }
 
 func createDataFolder() error {
-	err := os.MkdirAll(path.Dir(coursesPathJson), os.ModePerm)
-	if err != nil {
-		return err
-	}
-	return nil
+	return os.MkdirAll(path.Dir(coursesPathJson), os.ModePerm)
 }
 
 func openData() (unibo.Courses, error) {
@@ -128,7 +126,7 @@ func openData() (unibo.Courses, error) {
 	}
 
 	// Create the map
-	courseMap := make(unibo.Courses)
+	courseMap := make(unibo.Courses, len(courses))
 	for _, course := range courses {
 		courseMap[course.Codice] = course
 	}
