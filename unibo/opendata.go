@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 
+	"github.com/patrickmn/go-cache"
 	"github.com/rs/zerolog/log"
 )
 
@@ -29,10 +29,6 @@ var (
 			http.DefaultTransport,
 		},
 	}
-
-	// A cached map of the [Course.Codice] to [CourseWebsiteId].
-	// It is set when the course website id is scraped in GetCourseWebsiteId.
-	websiteIdCache = sync.Map{}
 )
 
 type transport struct {
@@ -214,14 +210,17 @@ type CourseWebsiteId struct {
 	Id        string
 }
 
+var websiteIdCache = cache.New(cache.NoExpiration, cache.NoExpiration)
+
 // GetCourseWebsiteId returns the [CourseWebsiteId] of the course.
 //
 // If the course website id is already set, it returns it,
 // otherwise it scrapes it from the course website.
 func (c Course) GetCourseWebsiteId() (CourseWebsiteId, error) {
+	codeStr := strconv.Itoa(c.Codice)
 
 	// If the course website id is already in the cache, return it
-	websiteIdAny, found := websiteIdCache.Load(c.Codice)
+	websiteIdAny, found := websiteIdCache.Get(codeStr)
 	if found {
 		return websiteIdAny.(CourseWebsiteId), nil
 	}
@@ -232,7 +231,7 @@ func (c Course) GetCourseWebsiteId() (CourseWebsiteId, error) {
 		return CourseWebsiteId{}, err
 	}
 
-	websiteIdCache.Store(c.Codice, websiteId)
+	websiteIdCache.Set(codeStr, websiteId, cache.DefaultExpiration)
 	return websiteId, nil
 }
 
@@ -272,15 +271,13 @@ func (c Course) scrapeCourseWebsiteId() (CourseWebsiteId, error) {
 	return CourseWebsiteId{split[0], split[1]}, nil
 }
 
-func (c Course) RetrieveTimetable(anno int) (Timetable, error) {
-	log.Debug().Str("course", c.Descrizione).Int("year", anno).Msg("retrieving timetable")
-
+func (c Course) GetTimetable(anno int) (Timetable, error) {
 	id, err := c.GetCourseWebsiteId()
 	if err != nil {
 		return nil, err
 	}
 
-	timetable, err := GetTimetable(id, anno)
+	timetable, err := FetchTimetable(id, anno)
 	if err != nil {
 		return nil, err
 	}
@@ -288,26 +285,37 @@ func (c Course) RetrieveTimetable(anno int) (Timetable, error) {
 	return timetable, nil
 }
 
-// Courses satisfies [sort.Interface]
-type Courses map[int]Course
+type CoursesMap map[int]Course
+
+func (c CoursesMap) ToList() Courses {
+	courses := make([]Course, 0, len(c))
+	for _, course := range c {
+		courses = append(courses, course)
+	}
+	return courses
+}
+
+func (c CoursesMap) FindById(id int) (*Course, bool) {
+	course, found := c[id]
+	return &course, found
+}
+
+type Courses []Course
 
 func (c Courses) Len() int {
 	return len(c)
 }
 
 func (c Courses) Less(i, j int) bool {
-	if c[i].Codice != c[j].Codice {
-		return c[i].Codice < c[j].Codice
+	if c[i].AnnoAccademico != c[j].AnnoAccademico {
+		return c[i].AnnoAccademico < c[j].AnnoAccademico
 	}
-
-	return c[i].AnnoAccademico < c[j].AnnoAccademico
+	if c[i].Tipologia != c[j].Tipologia {
+		return c[i].Tipologia < c[j].Tipologia
+	}
+	return c[i].Codice < c[j].Codice
 }
 
 func (c Courses) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
-}
-
-func (c Courses) FindById(id int) (*Course, bool) {
-	course, found := c[id]
-	return &course, found
 }

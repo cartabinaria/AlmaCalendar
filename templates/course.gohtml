@@ -1,0 +1,53 @@
+{{ template "base" . }}
+{{ define "title" }}Corso | {{.course.Description}}{{ end }}
+
+{{ define "body" }}
+
+    {{$course := .Course}}
+
+    <p class="text-xl">{{.Course.Tipologia}} in</p>
+    <h1 class="text-4xl font-bold mb-8">{{.Course.Descrizione}}</h1>
+
+
+    <a class="link link-info" href="{{.Course.Url}}"> Link al sito del corso </a>
+
+    {{range $anno := anniRange .Course.DurataAnni}}
+
+        <div class="mt-4">
+            <p>Calendario {{$anno}} anno</p>
+            <div class="join mt-2 cal">
+                <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
+                <button class="btn btn-accent join-item">Copia</button>
+            </div>
+        </div>
+
+    {{end}}
+
+    <script>
+        const elements = document.getElementsByClassName("cal");
+        const url = new URL(document.baseURI);
+
+        for (const el of elements) {
+            const pre = el.getElementsByTagName("pre")[0]
+            const btn = el.getElementsByTagName("button")[0]
+
+
+            pre.innerHTML = `webcal://${url.host}${pre.innerHTML}`;
+
+            // Select all text on click
+            pre.addEventListener("click", () => {
+                const range = document.createRange();
+                range.selectNodeContents(pre);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            btn.addEventListener("click", () => {
+                navigator.clipboard.writeText(pre.innerHTML);
+            });
+        }
+    </script>
+{{ end }}
+
+

@@ -56,7 +56,7 @@ func GetTimetableUrl(course CourseWebsiteId, anno int) string {
 	return fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, anno)
 }
 
-func GetTimetable(course CourseWebsiteId, anno int) (Timetable, error) {
+func FetchTimetable(course CourseWebsiteId, anno int) (Timetable, error) {
 	url := GetTimetableUrl(course, anno)
 
 	response, err := Client.Get(url)

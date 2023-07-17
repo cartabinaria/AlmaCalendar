@@ -105,7 +105,7 @@ func createDataFolder() error {
 	return os.MkdirAll(path.Dir(coursesPathJson), os.ModePerm)
 }
 
-func openData() (unibo.Courses, error) {
+func openData() (unibo.CoursesMap, error) {
 	// Open file
 	file, err := os.Open(coursesPathJson)
 	if err != nil {
@@ -126,7 +126,7 @@ func openData() (unibo.Courses, error) {
 	}
 
 	// Create the map
-	courseMap := make(unibo.Courses, len(courses))
+	courseMap := make(unibo.CoursesMap, len(courses))
 	for _, course := range courses {
 		courseMap[course.Codice] = course
 	}

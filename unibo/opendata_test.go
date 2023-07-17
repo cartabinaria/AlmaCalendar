@@ -1,13 +1,14 @@
 package unibo
 
 import (
-	"github.com/samber/lo"
 	"math/rand"
 	"testing"
+
+	"github.com/samber/lo"
 )
 
 func BenchmarkCourses_FindById(b *testing.B) {
-	courses := Courses{}
+	courses := CoursesMap{}
 	for i := 0; i < 1000; i++ {
 		course := genRandomCourse()
 		courses[course.Codice] = course
@@ -40,7 +41,7 @@ func genRandomCourse() Course {
 }
 
 func TestCourses_FindById(t *testing.T) {
-	courses := Courses{1: {Codice: 1}, 2: {Codice: 2}, 3: {Codice: 3}}
+	courses := CoursesMap{1: {Codice: 1}, 2: {Codice: 2}, 3: {Codice: 3}}
 
 	course, found := courses.FindById(2)
 	if !found {
