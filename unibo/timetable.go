@@ -96,6 +96,8 @@ func (t Timetable) ToICS() *ics.Calendar {
 		e.SetStartAt(event.Start.Time)
 		e.SetEndAt(event.End.Time)
 
+		e.SetDtStampTime(time.Now()) // https://www.kanzaki.com/docs/ical/dtstamp.html
+
 		b := strings.Builder{}
 
 		b.WriteString(fmt.Sprintf("Docente: %s\n", event.Docente))
