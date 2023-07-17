@@ -1,16 +1,19 @@
 package main
 
 import (
-	"embed"
 	_ "embed"
 	fmt "fmt"
-	ics "github.com/arran4/golang-ical"
-	"io/fs"
 	"net/http"
 	"os"
 	"sort"
 	"strconv"
 	"text/template"
+	"time"
+
+	ics "github.com/arran4/golang-ical"
+	"github.com/gin-contrib/cache"
+	"github.com/gin-contrib/cache/persistence"
+
 	"unibocalendar/unibo"
 
 	"github.com/gin-contrib/multitemplate"
@@ -26,9 +29,6 @@ var (
 	indexTemplate string
 	//go:embed templates/courses.gohtml
 	coursesTemplate string
-
-	//go:embed static/*
-	staticFS embed.FS
 )
 
 func createMyRender() multitemplate.Renderer {
@@ -64,11 +64,7 @@ func main() {
 	r := gin.Default()
 	r.HTMLRender = createMyRender()
 
-	staticFSSub, err := fs.Sub(staticFS, "static")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Unable to get sub staticFS")
-	}
-	r.StaticFS("/static", http.FS(staticFSSub))
+	r.Static("/static", "./static")
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index", gin.H{})
@@ -79,7 +75,8 @@ func main() {
 		})
 	})
 
-	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
+	store := persistence.NewInMemoryStore(time.Second)
+	r.GET("/cal/:id/:anno", cache.CachePage(store, time.Hour, getCoursesCal(&courses)))
 
 	err = r.Run()
 	if err != nil {

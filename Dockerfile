@@ -3,7 +3,7 @@ WORKDIR /app
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml tailwind.config.js ./
 RUN pnpm install --frozen-lockfile
 
 COPY templates ./templates
@@ -15,11 +15,12 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY --from=nodebuild /app/static ./static
 COPY . .
 RUN go build -o unibocalendar
 
 FROM alpine
+WORKDIR /app
+COPY --from=nodebuild /app/static ./static
 COPY --from=gobuild /app/unibocalendar .
 
 ENV PORT=8080

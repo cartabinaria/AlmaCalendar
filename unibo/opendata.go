@@ -5,13 +5,14 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -236,7 +237,7 @@ func (c Course) GetCourseWebsiteId() (CourseWebsiteId, error) {
 }
 
 func (c Course) scrapeCourseWebsiteId() (CourseWebsiteId, error) {
-	log.Debug().Int("course", c.Codice).Msg("scraping course website id")
+	log.Debug().Str("course", c.Descrizione).Msg("scraping course website id")
 
 	resp, err := Client.Get(c.Url)
 	if err != nil {
@@ -272,6 +273,8 @@ func (c Course) scrapeCourseWebsiteId() (CourseWebsiteId, error) {
 }
 
 func (c Course) RetrieveTimetable(anno int) (Timetable, error) {
+	log.Debug().Str("course", c.Descrizione).Int("year", anno).Msg("retrieving timetable")
+
 	id, err := c.GetCourseWebsiteId()
 	if err != nil {
 		return nil, err
