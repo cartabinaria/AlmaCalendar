@@ -4,6 +4,7 @@
 {{ define "body" }}
 
     {{$course := .Course}}
+    {{$curricula := .Curricula}}
 
     <p class="text-xl">{{.Course.Tipologia}} in</p>
     <h1 class="text-4xl font-bold mb-8">{{.Course.Descrizione}}</h1>
@@ -12,16 +13,34 @@
     <a class="link link-info" href="{{.Course.Url}}"> Link al sito del corso </a>
 
     {{range $anno := anniRange .Course.DurataAnni}}
+        {{$yCurricula := index $curricula $anno}}
+        {{$len := len $yCurricula}}
 
-        <div class="mt-4">
-            <p>Calendario {{$anno}} anno</p>
-            <div class="join mt-2 cal">
-                <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
-                <button class="btn btn-accent join-item">Copia</button>
-                <a class="btn btn-accent join-item open">Apri online</a>
-            </div>
+        <div class="mt-8">
+
+            {{if or (eq $len 0) (eq $len 1)}}
+                <div class="mt-4">
+                    <p>Calendario {{$anno}} anno</p>
+                    <div class="join mt-2 cal">
+                        <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
+                        <button class="btn btn-accent join-item">Copia</button>
+                        <a class="btn btn-accent join-item open">Apri online</a>
+                    </div>
+                </div>
+            {{else}}
+                {{range $curriculum := $yCurricula }}
+                    <div class="mt-4">
+                        <p>Calendario {{$anno}} anno ({{$curriculum.Label}})</p>
+                        <div class="join mt-2 cal">
+                            <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}?curriculum={{$curriculum.Value}}</pre>
+                            <button class="btn btn-accent join-item">Copia</button>
+                            <a class="btn btn-accent join-item open">Apri online</a>
+                        </div>
+                    </div>
+                {{end}}
+            {{end}}
+
         </div>
-
     {{end}}
 
     <script>

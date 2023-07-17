@@ -1,7 +1,6 @@
 package unibo
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -13,25 +12,14 @@ type Curriculum struct {
 	Label    string `json:"label"`
 }
 
+type Curricula []Curriculum
+
 func GetCurriculaUrl(course CourseWebsiteId, year int) string {
 	return fmt.Sprintf(baseCurricula, course.Tipologia, course.Id, year)
 }
 
-func GetCurricula(course CourseWebsiteId, year int) ([]Curriculum, error) {
+func FetchCurricula(course CourseWebsiteId, year int) (curricula Curricula, err error) {
 	url := GetCurriculaUrl(course, year)
-
-	response, err := Client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var curricola []Curriculum
-	err = json.NewDecoder(response.Body).Decode(&curricola)
-
-	err = response.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	return curricola, nil
+	err = fetchJson(url, &curricula)
+	return
 }

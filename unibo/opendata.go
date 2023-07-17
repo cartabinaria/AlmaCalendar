@@ -31,6 +31,28 @@ var (
 	}
 )
 
+func fetchJson(url string, v interface{}) error {
+	// Get the resource
+	res, err := Client.Get(url)
+	if err != nil {
+		return err
+	}
+
+	// Parse the body
+	err = json.NewDecoder(res.Body).Decode(v)
+	if err != nil {
+		return err
+	}
+
+	// Close the body
+	err = res.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type transport struct {
 	http.RoundTripper
 }
@@ -271,13 +293,27 @@ func (c Course) scrapeCourseWebsiteId() (CourseWebsiteId, error) {
 	return CourseWebsiteId{split[0], split[1]}, nil
 }
 
-func (c Course) GetTimetable(anno int) (Timetable, error) {
+func (c Course) GetCurricula(year int) (Curricula, error) {
 	id, err := c.GetCourseWebsiteId()
 	if err != nil {
 		return nil, err
 	}
 
-	timetable, err := FetchTimetable(id, anno)
+	curricula, err := FetchCurricula(id, year)
+	if err != nil {
+		return nil, err
+	}
+
+	return curricula, nil
+}
+
+func (c Course) GetTimetable(year int, curriculum Curriculum) (Timetable, error) {
+	id, err := c.GetCourseWebsiteId()
+	if err != nil {
+		return nil, err
+	}
+
+	timetable, err := FetchTimetable(id, year, curriculum)
 	if err != nil {
 		return nil, err
 	}

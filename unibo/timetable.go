@@ -2,7 +2,6 @@ package unibo
 
 import (
 	"crypto/sha1"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -52,30 +51,18 @@ type TimetableEvent struct {
 
 type Timetable []TimetableEvent
 
-func GetTimetableUrl(course CourseWebsiteId, anno int) string {
-	return fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, anno)
+func GetTimetableUrl(course CourseWebsiteId, anno int, curriculum Curriculum) string {
+	url := fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, anno)
+	if curriculum != (Curriculum{}) {
+		url += fmt.Sprintf("&curricula=%s", curriculum.Value)
+	}
+	return url
 }
 
-func FetchTimetable(course CourseWebsiteId, anno int) (Timetable, error) {
-	url := GetTimetableUrl(course, anno)
-
-	response, err := Client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var timetable Timetable
-	err = json.NewDecoder(response.Body).Decode(&timetable)
-	if err != nil {
-		return nil, err
-	}
-
-	err = response.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	return timetable, nil
+func FetchTimetable(course CourseWebsiteId, anno int, curriculum Curriculum) (timetable Timetable, err error) {
+	url := GetTimetableUrl(course, anno, curriculum)
+	err = fetchJson(url, &timetable)
+	return
 }
 
 func (t Timetable) ToICS() *ics.Calendar {

@@ -5,13 +5,16 @@ go 1.20
 require (
 	github.com/arran4/golang-ical v0.0.0-20230425234049-f69e132f2b0c
 	github.com/gin-contrib/multitemplate v0.0.0-20230212012517-45920c92c271
+	github.com/gin-contrib/size v0.0.0-20230212012657-e14a14094dc4
 	github.com/gin-gonic/gin v1.9.1
+	github.com/lf4096/gin-compress v0.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rs/zerolog v1.29.1
 	github.com/samber/lo v1.38.1
 )
 
 require (
+	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
@@ -21,6 +24,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

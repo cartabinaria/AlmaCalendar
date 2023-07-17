@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	fmt "fmt"
+	"fmt"
 	"net/http"
 	"os"
 	"sort"
@@ -12,14 +12,15 @@ import (
 	"time"
 
 	ics "github.com/arran4/golang-ical"
-	"github.com/patrickmn/go-cache"
-
-	"unibocalendar/unibo"
-
 	"github.com/gin-contrib/multitemplate"
+	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
+	"github.com/lf4096/gin-compress"
+	"github.com/patrickmn/go-cache"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"unibocalendar/unibo"
 )
 
 var (
@@ -62,6 +63,9 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(compress.Compress())
+	// Limit payload to 10 MB. This fixes zip bombs.
+	r.Use(limits.RequestSizeLimiter(10 * 1024 * 1024))
 	r.HTMLRender = createMyRender()
 
 	r.Static("/static", "./static")
@@ -96,9 +100,20 @@ func main() {
 			c.String(http.StatusNotFound, "Course not found")
 			return
 		}
+		curricula := make(map[int]unibo.Curricula)
+
+		for year := 1; year <= course.DurataAnni; year++ {
+			curricula[year], err = course.GetCurricula(year)
+			if err != nil {
+				_ = c.Error(err)
+				c.String(http.StatusInternalServerError, "Unable to retrieve curricula")
+				return
+			}
+		}
 
 		c.HTML(http.StatusOK, "course", gin.H{
-			"Course": course,
+			"Course":    course,
+			"Curricula": curricula,
 		})
 	})
 
@@ -149,8 +164,14 @@ func getCoursesCal(courses *unibo.CoursesMap) func(c *gin.Context) {
 			return
 		}
 
+		curriculumId := c.Query("curriculum")
+		curriculum := unibo.Curriculum{}
+		if curriculumId != "" {
+			curriculum.Value = curriculumId
+		}
+
 		// Try to retrieve timetable, otherwise return 500
-		timetable, err := course.GetTimetable(annoInt)
+		timetable, err := course.GetTimetable(annoInt, curriculum)
 		if err != nil {
 			_ = c.Error(err)
 			c.String(http.StatusInternalServerError, "Unable to retrieve timetable")
