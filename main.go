@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha1"
 	_ "embed"
 	"fmt"
 	"net/http"
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
@@ -177,7 +179,7 @@ func getCoursesCal(courses *unibo.CoursesMap) func(c *gin.Context) {
 		}
 
 		// Try to retrieve timetable, otherwise return 500
-		timetable, err := course.GetTimetable(annoInt, curriculum)
+		timetable, err := course.GetTimetable(annoInt, curriculum, nil)
 		if err != nil {
 			_ = c.Error(err)
 			c.String(http.StatusInternalServerError, "Unable to retrieve timetable")
@@ -210,10 +212,49 @@ func successCalendar(c *gin.Context, cal *bytes.Buffer) {
 }
 
 func createCal(timetable unibo.Timetable, course *unibo.Course, year int) (cal *ics.Calendar) {
-	cal = timetable.ToICS()
+	cal = toICS(timetable)
 	cal.SetName(fmt.Sprintf("%s - %d year", course.Descrizione, year))
 	cal.SetDescription(
 		fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s", year, course.Descrizione),
 	)
 	return
+}
+
+func toICS(t unibo.Timetable) *ics.Calendar {
+	cal := ics.NewCalendar()
+	cal.SetMethod(ics.MethodRequest)
+
+	for _, event := range t {
+		sha := sha1.New()
+		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s", event.CodModulo, event.Start, event.End)))
+		if err != nil {
+			return nil
+		}
+		uid := fmt.Sprintf("%x", sha.Sum(nil))
+
+		e := cal.AddEvent(uid)
+		e.SetOrganizer(event.Docente)
+		e.SetSummary(event.Title)
+		e.SetStartAt(event.Start.Time)
+		e.SetEndAt(event.End.Time)
+
+		e.SetDtStampTime(time.Now()) // https://www.kanzaki.com/docs/ical/dtstamp.html
+
+		b := strings.Builder{}
+
+		b.WriteString(fmt.Sprintf("Docente: %s\n", event.Docente))
+		if len(event.Aule) > 0 {
+			b.WriteString(fmt.Sprintf("Aula: %s\n", event.Aule[0].DesRisorsa))
+		}
+		b.WriteString(fmt.Sprintf("Cfu: %d\n", event.Cfu))
+		b.WriteString(fmt.Sprintf("Periodo: %s\n", event.Periodo))
+
+		e.SetDescription(b.String())
+
+		if len(event.Aule) > 0 {
+			e.SetLocation(event.Aule[0].DesRisorsa)
+		}
+	}
+
+	return cal
 }

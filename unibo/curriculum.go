@@ -16,7 +16,7 @@ type Curriculum struct {
 
 type Curricula []Curriculum
 
-func GetCurriculaUrl(course CourseWebsiteId, year int) string {
+func GetCurriculaUrl(course CourseId, year int) string {
 	if strings.Contains(course.Tipologia, "cycle") {
 		return fmt.Sprintf(baseCurriculaEn, course.Tipologia, course.Id, year)
 	}
@@ -24,7 +24,7 @@ func GetCurriculaUrl(course CourseWebsiteId, year int) string {
 	return fmt.Sprintf(baseCurriculaIt, course.Tipologia, course.Id, year)
 }
 
-func FetchCurricula(course CourseWebsiteId, year int) (curricula Curricula, err error) {
+func FetchCurricula(course CourseId, year int) (curricula Curricula, err error) {
 	url := GetCurriculaUrl(course, year)
 	err = getJson(url, &curricula)
 	return

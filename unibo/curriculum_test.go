@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetCurricula(t *testing.T) {
-	curricula, err := FetchCurricula(CourseWebsiteId{Tipologia: "laurea", Id: "informatica"}, 1)
+	curricula, err := FetchCurricula(CourseId{Tipologia: "laurea", Id: "informatica"}, 1)
 	if err != nil {
 		t.Fatalf("Error while fetching curricula: %s", err)
 	}

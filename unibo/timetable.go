@@ -1,12 +1,9 @@
 package unibo
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"strings"
 	"time"
-
-	ics "github.com/arran4/golang-ical"
 )
 
 const baseTimetable = "https://corsi.unibo.it/%s/%s/orario-lezioni/@@orario_reale_json?anno=%d"
@@ -52,62 +49,43 @@ type TimetableEvent struct {
 
 type Timetable []TimetableEvent
 
-func GetTimetableUrl(course CourseWebsiteId, anno int, curriculum Curriculum) string {
+type TimetablePeriod struct {
+	Start time.Time
+	End   time.Time
+}
+
+// GetTimetableUrl returns the URL to fetch the timetable for the given course.
+//
+// If `curriculum` is not empty, it will be used to filter the timetable.
+// If `period` is not nil, it will be used to filter the timetable.
+func GetTimetableUrl(course CourseId, curriculum Curriculum, year int, period *TimetablePeriod) string {
+
 	var url string
 	if strings.Contains(course.Tipologia, "cycle") {
-		url = fmt.Sprintf(baseTimetableEn, course.Tipologia, course.Id, anno)
+		url = fmt.Sprintf(baseTimetableEn, course.Tipologia, course.Id, year)
 	} else {
-		url = fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, anno)
+		url = fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, year)
 	}
 
 	if curriculum != (Curriculum{}) {
 		url += fmt.Sprintf("&curricula=%s", curriculum.Value)
 	}
 
+	if period != nil {
+		url += fmt.Sprintf("&start=%s", period.Start.Format("2006-01-02"))
+		url += fmt.Sprintf("&end=%s", period.End.Format("2006-01-02"))
+	}
+
 	return url
 }
 
-func FetchTimetable(course CourseWebsiteId, anno int, curriculum Curriculum) (timetable Timetable, err error) {
-	url := GetTimetableUrl(course, anno, curriculum)
+func FetchTimetable(
+	course CourseId,
+	curriculum Curriculum,
+	year int,
+	period *TimetablePeriod,
+) (timetable Timetable, err error) {
+	url := GetTimetableUrl(course, curriculum, year, period)
 	err = getJson(url, &timetable)
 	return
-}
-
-func (t Timetable) ToICS() *ics.Calendar {
-	cal := ics.NewCalendar()
-	cal.SetMethod(ics.MethodRequest)
-
-	for _, event := range t {
-		sha := sha1.New()
-		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s", event.CodModulo, event.Start, event.End)))
-		if err != nil {
-			return nil
-		}
-		uid := fmt.Sprintf("%x", sha.Sum(nil))
-
-		e := cal.AddEvent(uid)
-		e.SetOrganizer(event.Docente)
-		e.SetSummary(event.Title)
-		e.SetStartAt(event.Start.Time)
-		e.SetEndAt(event.End.Time)
-
-		e.SetDtStampTime(time.Now()) // https://www.kanzaki.com/docs/ical/dtstamp.html
-
-		b := strings.Builder{}
-
-		b.WriteString(fmt.Sprintf("Docente: %s\n", event.Docente))
-		if len(event.Aule) > 0 {
-			b.WriteString(fmt.Sprintf("Aula: %s\n", event.Aule[0].DesRisorsa))
-		}
-		b.WriteString(fmt.Sprintf("Cfu: %d\n", event.Cfu))
-		b.WriteString(fmt.Sprintf("Periodo: %s\n", event.Periodo))
-
-		e.SetDescription(b.String())
-
-		if len(event.Aule) > 0 {
-			e.SetLocation(event.Aule[0].DesRisorsa)
-		}
-	}
-
-	return cal
 }
