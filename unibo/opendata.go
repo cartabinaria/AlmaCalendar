@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -31,7 +30,7 @@ var (
 	}
 )
 
-func fetchJson(url string, v interface{}) error {
+func getJson(url string, v interface{}) error {
 	// Get the resource
 	res, err := Client.Get(url)
 	if err != nil {
@@ -258,7 +257,6 @@ func (c Course) GetCourseWebsiteId() (CourseWebsiteId, error) {
 }
 
 func (c Course) scrapeCourseWebsiteId() (CourseWebsiteId, error) {
-	log.Debug().Str("course", c.Descrizione).Msg("scraping course website id")
 
 	resp, err := Client.Get(c.Url)
 	if err != nil {
@@ -305,6 +303,39 @@ func (c Course) GetCurricula(year int) (Curricula, error) {
 	}
 
 	return curricula, nil
+}
+
+func (c Course) GetAllCurricula() (map[int]Curricula, error) {
+	id, err := c.GetCourseWebsiteId()
+	if err != nil {
+		return nil, err
+	}
+
+	currCh := make(chan Curricula)
+	errCh := make(chan error)
+
+	for year := 1; year <= c.DurataAnni; year++ {
+		go func(year int) {
+			curricula, err := FetchCurricula(id, year)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			currCh <- curricula
+		}(year)
+	}
+
+	curriculaMap := make(map[int]Curricula, c.DurataAnni)
+	for year := 1; year <= c.DurataAnni; year++ {
+		select {
+		case curricula := <-currCh:
+			curriculaMap[year] = curricula
+		case err := <-errCh:
+			return nil, err
+		}
+	}
+
+	return curriculaMap, nil
 }
 
 func (c Course) GetTimetable(year int, curriculum Curriculum) (Timetable, error) {

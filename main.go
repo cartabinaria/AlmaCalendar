@@ -20,7 +20,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"unibocalendar/unibo"
+	"github.com/VaiTon/unibocalendar/unibo"
 )
 
 var (
@@ -62,6 +62,15 @@ func main() {
 		log.Fatal().Err(err).Msg("Unable to open open data file")
 	}
 
+	r := setupRouter(courses)
+
+	err = r.Run()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Unable to start server")
+	}
+}
+
+func setupRouter(courses unibo.CoursesMap) *gin.Engine {
 	r := gin.Default()
 	r.Use(compress.Compress())
 	// Limit payload to 10 MB. This fixes zip bombs.
@@ -82,7 +91,14 @@ func main() {
 		})
 	})
 
-	r.GET("/courses/:id", func(c *gin.Context) {
+	r.GET("/courses/:id", coursePage(courses))
+
+	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
+	return r
+}
+
+func coursePage(courses unibo.CoursesMap) func(c *gin.Context) {
+	return func(c *gin.Context) {
 		courseId := c.Param("id")
 		if courseId == "" {
 			c.String(http.StatusBadRequest, "Invalid course id")
@@ -100,28 +116,18 @@ func main() {
 			c.String(http.StatusNotFound, "Course not found")
 			return
 		}
-		curricula := make(map[int]unibo.Curricula)
 
-		for year := 1; year <= course.DurataAnni; year++ {
-			curricula[year], err = course.GetCurricula(year)
-			if err != nil {
-				_ = c.Error(err)
-				c.String(http.StatusInternalServerError, "Unable to retrieve curricula")
-				return
-			}
+		curricula, err := course.GetAllCurricula()
+		if err != nil {
+			_ = c.Error(err)
+			c.String(http.StatusInternalServerError, "Unable to retrieve curricula")
+			return
 		}
 
 		c.HTML(http.StatusOK, "course", gin.H{
 			"Course":    course,
 			"Curricula": curricula,
 		})
-	})
-
-	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
-
-	err = r.Run()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Unable to start server")
 	}
 }
 

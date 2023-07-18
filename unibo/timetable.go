@@ -10,6 +10,7 @@ import (
 )
 
 const baseTimetable = "https://corsi.unibo.it/%s/%s/orario-lezioni/@@orario_reale_json?anno=%d"
+const baseTimetableEn = "https://corsi.unibo.it/%s/%s/timetable/@@orario_reale_json?anno=%d"
 
 type CalendarTime struct {
 	time.Time
@@ -52,16 +53,23 @@ type TimetableEvent struct {
 type Timetable []TimetableEvent
 
 func GetTimetableUrl(course CourseWebsiteId, anno int, curriculum Curriculum) string {
-	url := fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, anno)
+	var url string
+	if strings.Contains(course.Tipologia, "cycle") {
+		url = fmt.Sprintf(baseTimetableEn, course.Tipologia, course.Id, anno)
+	} else {
+		url = fmt.Sprintf(baseTimetable, course.Tipologia, course.Id, anno)
+	}
+
 	if curriculum != (Curriculum{}) {
 		url += fmt.Sprintf("&curricula=%s", curriculum.Value)
 	}
+
 	return url
 }
 
 func FetchTimetable(course CourseWebsiteId, anno int, curriculum Curriculum) (timetable Timetable, err error) {
 	url := GetTimetableUrl(course, anno, curriculum)
-	err = fetchJson(url, &timetable)
+	err = getJson(url, &timetable)
 	return
 }
 

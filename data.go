@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 
-	"unibocalendar/unibo"
+	"github.com/VaiTon/unibocalendar/unibo"
 )
 
 const (

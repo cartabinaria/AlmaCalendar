@@ -1,4 +1,4 @@
-module unibocalendar
+module github.com/VaiTon/unibocalendar
 
 go 1.20
 
@@ -7,6 +7,7 @@ require (
 	github.com/gin-contrib/multitemplate v0.0.0-20230212012517-45920c92c271
 	github.com/gin-contrib/size v0.0.0-20230212012657-e14a14094dc4
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-playground/assert/v2 v2.2.0
 	github.com/lf4096/gin-compress v0.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rs/zerolog v1.29.1
