@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"crypto/sha1"
-	_ "embed"
 	"fmt"
 	"net/http"
 	"os"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -25,16 +25,7 @@ import (
 	"github.com/VaiTon/unibocalendar/unibo"
 )
 
-var (
-	//go:embed templates/base.gohtml
-	baseTemplate string
-	//go:embed templates/index.gohtml
-	indexTemplate string
-	//go:embed templates/courses.gohtml
-	coursesTemplate string
-	//go:embed templates/course.gohtml
-	courseTemplate string
-)
+const templateDir = "./templates"
 
 func createMyRender() multitemplate.Renderer {
 	funcMap := template.FuncMap{"anniRange": func(end int) []int {
@@ -47,10 +38,16 @@ func createMyRender() multitemplate.Renderer {
 
 	r := multitemplate.NewRenderer()
 
-	r.AddFromString("base", baseTemplate)
-	r.AddFromStringsFuncs("index", funcMap, baseTemplate, indexTemplate)
-	r.AddFromStringsFuncs("courses", funcMap, baseTemplate, coursesTemplate)
-	r.AddFromStringsFuncs("course", funcMap, baseTemplate, courseTemplate)
+	r.AddFromFiles("base", path.Join(templateDir, "base.gohtml"))
+	r.AddFromFilesFuncs("index", funcMap,
+		path.Join(templateDir, "index.gohtml"), path.Join(templateDir, "base.gohtml"),
+	)
+	r.AddFromFilesFuncs("courses", funcMap,
+		path.Join(templateDir, "courses.gohtml"), path.Join(templateDir, "base.gohtml"),
+	)
+	r.AddFromFilesFuncs("course", funcMap,
+		path.Join(templateDir, "course.gohtml"), path.Join(templateDir, "base.gohtml"),
+	)
 	return r
 }
 
@@ -121,9 +118,8 @@ func coursePage(courses unibo.CoursesMap) func(c *gin.Context) {
 
 		curricula, err := course.GetAllCurricula()
 		if err != nil {
-			_ = c.Error(err)
-			c.String(http.StatusInternalServerError, "Unable to retrieve curricula")
-			return
+			_ = c.Error(fmt.Errorf("unable to retrieve curricula: %w", err))
+			curricula = map[int]unibo.Curricula{}
 		}
 
 		c.HTML(http.StatusOK, "course", gin.H{

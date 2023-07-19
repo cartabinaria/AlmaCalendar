@@ -113,7 +113,7 @@ func (c Course) GetCurricula(year int) (Curricula, error) {
 func (c Course) GetAllCurricula() (map[int]Curricula, error) {
 	id, err := c.GetCourseWebsiteId()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get course website id: %w", err)
 	}
 
 	currCh := make(chan Curricula)

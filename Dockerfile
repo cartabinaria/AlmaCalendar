@@ -22,11 +22,13 @@ FROM alpine
 WORKDIR /app
 COPY --from=nodebuild /app/static ./static
 COPY --from=gobuild /app/unibocalendar .
+COPY templates/*.gohtml ./templates/
 
 ENV PORT=8080
 EXPOSE 8080
 
 ENV GIN_MODE=release
+VOLUME /app/data
 
 CMD ["./unibocalendar"]
 

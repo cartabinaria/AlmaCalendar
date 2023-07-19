@@ -23,18 +23,22 @@ func downloadOpenDataIfNewer() {
 	// Get package
 	pack, err := unibo.GetPackage("degree-programmes")
 	if err != nil {
-		log.Panic().Err(err).Msg("Unable to get package")
+		log.Warn().Err(err).Msg("unable to get package")
+		return
 	}
 
 	// If no resources, return nil
 	if len(pack.Result.Resources) == 0 {
-		log.Panic().Msg("No resources found")
+		log.Warn().Msg("no resources found while downloading open data")
+		return
 	}
 
 	// Get wanted resource
-	resource := pack.Result.Resources.GetByAlias("corsi_latest_it")
+	alias := "corsi_latest_it"
+	resource := pack.Result.Resources.GetByAlias(alias)
 	if resource == nil {
-		log.Panic().Msg("Unable to find resource")
+		log.Warn().Msgf("unable to find resource '%s'", alias)
+		return
 	}
 
 	// Get last modified resource

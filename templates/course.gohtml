@@ -1,6 +1,13 @@
 {{ template "base" . }}
 {{ define "title" }}Corso | {{.course.Description}}{{ end }}
 
+{{ define "buttons" }}
+    <button class="btn btn-accent join-item">Copia</button>
+    <a class="btn btn-accent join-item open">Apri online</a>
+    <a class="btn btn-accent join-item google">Aggiungi a Google Calendar</a>
+    <a class="btn btn-accent join-item apple">Aggiungi a Apple Calendar</a>
+{{ end }}
+
 {{ define "body" }}
 
     {{$course := .Course}}
@@ -23,8 +30,7 @@
                     <p>Calendario {{$anno}} anno</p>
                     <div class="join mt-2 cal">
                         <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
-                        <button class="btn btn-accent join-item">Copia</button>
-                        <a class="btn btn-accent join-item open">Apri online</a>
+                        {{ template "buttons" }}
                     </div>
                 </div>
             {{else}}
@@ -33,8 +39,7 @@
                         <p>Calendario {{$anno}} anno ({{$curriculum.Label}})</p>
                         <div class="join mt-2 cal">
                             <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}?curriculum={{$curriculum.Value}}</pre>
-                            <button class="btn btn-accent join-item">Copia</button>
-                            <a class="btn btn-accent join-item open">Apri online</a>
+                            {{ template "buttons" }}
                         </div>
                     </div>
                 {{end}}
@@ -49,14 +54,12 @@
 
         for (const el of elements) {
             const pre = el.getElementsByTagName("pre")[0]
-            const btnCopyUrl = el.getElementsByTagName("button")[0]
-            const aOpen = el.getElementsByTagName("a")[0]
-
-            const path = pre.innerHTML;
+            const calPath = pre.innerHTML;
 
 
-            pre.innerHTML = `webcal://${url.host}${path}`;
+            const webcalLink = `webcal://${url.host}${calPath}`
 
+            pre.innerHTML = webcalLink;
             // Select all text on click
             pre.addEventListener("click", () => {
                 const range = document.createRange();
@@ -66,16 +69,24 @@
                 sel.addRange(range);
             });
 
+            const btnCopyUrl = el.getElementsByTagName("button")[0]
             btnCopyUrl.addEventListener("click", () => {
                 navigator.clipboard.writeText(pre.innerHTML);
             });
 
+            const aOpen = el.getElementsByClassName("open")[0]
             aOpen.href = `https://larrybolt.github.io/online-ics-feed-viewer/#` + new URLSearchParams({
-                feed: `${url.origin}${path}`,
+                feed: `${url.origin}${calPath}`,
                 cors: false,
                 title: "Lezioni",
                 hideinput: true
             })
+
+            const addToGoogleBtn = el.getElementsByClassName("google")[0]
+            addToGoogleBtn.href = `https://www.google.com/calendar/render?cid=${url.origin}${calPath}`
+
+            const addToAppleBtn = el.getElementsByClassName("apple")[0]
+            addToAppleBtn.href = webcalLink
         }
     </script>
 {{ end }}
