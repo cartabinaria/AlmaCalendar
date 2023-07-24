@@ -30,6 +30,10 @@ EXPOSE 8080
 ENV GIN_MODE=release
 VOLUME /app/data
 
+LABEL org.opencontainers.image.source="https://github.com/VaiTon/unibocalendar"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.description="Calendario per i corsi Unibo V2"
+
 CMD ["./unibocalendar"]
 
 
