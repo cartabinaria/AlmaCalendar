@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const { addDynamicIconSelectors } = require('@iconify/tailwind');
 module.exports = {
     content: [
         "templates/*.gohtml",
@@ -6,6 +7,6 @@ module.exports = {
     theme: {
         extend: {},
     },
-    plugins: [require("daisyui")],
+    plugins: [require("daisyui"), addDynamicIconSelectors(),],
 }
 

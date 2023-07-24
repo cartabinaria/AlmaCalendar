@@ -2,10 +2,20 @@
 {{ define "title" }}Corso | {{.course.Description}}{{ end }}
 
 {{ define "buttons" }}
-    <button class="btn btn-accent join-item">Copia</button>
-    <a class="btn btn-accent join-item open">Apri online</a>
-    <a class="btn btn-accent join-item google">Aggiungi a Google Calendar</a>
-    <a class="btn btn-accent join-item apple">Aggiungi a Apple Calendar</a>
+    <div class="join">
+        <button class="btn btn-accent join-item" title="Copia">
+            <span class="icon-[heroicons--document-duplicate-solid] text-xl"></span>
+        </button>
+        <a class="btn btn-accent join-item open">Apri online</a>
+    </div>
+    <div class="join">
+        <a class="btn btn-info bg-white join-item google">
+            Google Calendar <span class="icon-[logos--google-calendar] text-xl"></span>
+        </a>
+        <a class="btn btn-info bg-white join-item apple">
+            Apple Calendar <span class="icon-[logos--apple] text-xl"></span>
+        </a>
+    </div>
 {{ end }}
 
 {{ define "body" }}
@@ -28,7 +38,7 @@
             {{if or (eq $len 0) (eq $len 1)}}
                 <div class="mt-4">
                     <p>Calendario {{$anno}} anno</p>
-                    <div class="join mt-2 cal">
+                    <div class="mt-2 cal">
                         <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
                         {{ template "buttons" }}
                     </div>
@@ -37,8 +47,10 @@
                 {{range $curriculum := $yCurricula }}
                     <div class="mt-4">
                         <p>Calendario {{$anno}} anno ({{$curriculum.Label}})</p>
-                        <div class="join mt-2 cal">
-                            <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}?curriculum={{$curriculum.Value}}</pre>
+                        <div class="mt-2 cal flex gap-4">
+                            <pre class="input input-bordered font-mono h-auto w-auto py-2"
+                                 title="Link del calendario in formato WebCal"
+                                 tabindex="0">/cal/{{$course.Codice}}/{{$anno}}?curriculum={{$curriculum.Value}}</pre>
                             {{ template "buttons" }}
                         </div>
                     </div>
@@ -69,10 +81,13 @@
                 sel.addRange(range);
             });
 
+
             const btnCopyUrl = el.getElementsByTagName("button")[0]
             btnCopyUrl.addEventListener("click", () => {
                 navigator.clipboard.writeText(pre.innerHTML);
             });
+
+
 
             const aOpen = el.getElementsByClassName("open")[0]
             aOpen.href = `https://larrybolt.github.io/online-ics-feed-viewer/#` + new URLSearchParams({
