@@ -31,32 +31,28 @@
 
     {{range $anno := anniRange .Course.DurataAnni}}
         {{$yCurricula := index $curricula $anno}}
-        {{$len := len $yCurricula}}
-
         <div class="mt-8">
-
-            {{if or (eq $len 0) (eq $len 1)}}
+            {{range $curriculum := $yCurricula }}
                 <div class="mt-4">
-                    <p>Calendario {{$anno}} anno</p>
-                    <div class="mt-2 cal">
-                        <pre class="input input-bordered font-mono join-item h-auto w-auto py-2">/cal/{{$course.Codice}}/{{$anno}}</pre>
+                    <p>Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}</p>
+                    <div class="mt-2 cal flex gap-4">
+                            <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose"
+                                 title="Link del calendario in formato WebCal"
+                                 tabindex="0">/cal/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curriculum={{$curriculum.Value}}{{end}}</pre>
                         {{ template "buttons" }}
                     </div>
                 </div>
             {{else}}
-                {{range $curriculum := $yCurricula }}
-                    <div class="mt-4">
-                        <p>Calendario {{$anno}} anno ({{$curriculum.Label}})</p>
-                        <div class="mt-2 cal flex gap-4">
-                            <pre class="input input-bordered font-mono h-auto w-auto py-2"
-                                 title="Link del calendario in formato WebCal"
-                                 tabindex="0">/cal/{{$course.Codice}}/{{$anno}}?curriculum={{$curriculum.Value}}</pre>
-                            {{ template "buttons" }}
-                        </div>
+                <div class="mt-4">
+                    <p>Calendario {{$anno}} anno</p>
+                    <div class="mt-2 cal flex gap-4">
+                        <pre class="input input-bordered font-mono h-auto w-auto py-2"
+                             title="Link del calendario in formato WebCal"
+                             tabindex="0">/cal/{{$course.Codice}}/{{$anno}}</pre>
+                        {{ template "buttons" }}
                     </div>
-                {{end}}
+                </div>
             {{end}}
-
         </div>
     {{end}}
 
@@ -86,7 +82,6 @@
             btnCopyUrl.addEventListener("click", () => {
                 navigator.clipboard.writeText(pre.innerHTML);
             });
-
 
 
             const aOpen = el.getElementsByClassName("open")[0]
