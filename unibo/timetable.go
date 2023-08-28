@@ -14,7 +14,7 @@ type CalendarTime struct {
 }
 
 func (c *CalendarTime) UnmarshalJSON(b []byte) error {
-	t, err := time.Parse(`"2006-01-02T15:04:05"`, string(b))
+	t, err := time.ParseInLocation(`"2006-01-02T15:04:05"`, string(b), time.Local)
 	if err != nil {
 		return err
 	}
