@@ -16,12 +16,14 @@ import (
 
 const (
 	coursesPathJson = "data/courses.json"
+	packageId       = "degree-programmes"
+	resourceAlias   = "corsi_latest_it"
 )
 
 func downloadOpenDataIfNewer() {
 
 	// Get package
-	pack, err := unibo.GetPackage("degree-programmes")
+	pack, err := unibo.GetPackage(packageId)
 	if err != nil {
 		log.Warn().Err(err).Msg("unable to get package")
 		return
@@ -34,10 +36,9 @@ func downloadOpenDataIfNewer() {
 	}
 
 	// Get wanted resource
-	alias := "corsi_latest_it"
-	resource := pack.Result.Resources.GetByAlias(alias)
+	resource := pack.Result.Resources.GetByAlias(resourceAlias)
 	if resource == nil {
-		log.Warn().Msgf("unable to find resource '%s'", alias)
+		log.Warn().Msgf("unable to find resource '%s'", resourceAlias)
 		return
 	}
 
