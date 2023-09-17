@@ -34,7 +34,9 @@
         <div class="mt-8">
             {{range $curriculum := $yCurricula }}
                 <div class="mt-4">
-                    <p>Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}</p>
+                    <h2 class="text-3xl ">
+                        Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}
+                    </h2>
                     <div class="mt-2 cal flex gap-4">
                             <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose"
                                  title="Link del calendario in formato WebCal"

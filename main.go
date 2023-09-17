@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -174,6 +175,14 @@ func getCoursesCal(courses *unibo.CoursesMap) func(c *gin.Context) {
 			curriculum.Value = curriculumId
 		}
 
+		subjectIds := c.Query("subjects")
+		var subjects []string
+		if subjectIds != "" {
+			subjects = strings.Split(subjectIds, ",")
+		}
+
+		log.Debug().Any("subjects", subjects).Msg("Subjects")
+
 		// Try to retrieve timetable, otherwise return 500
 		timetable, err := course.GetTimetable(annoInt, curriculum, nil)
 		if err != nil {
@@ -182,7 +191,13 @@ func getCoursesCal(courses *unibo.CoursesMap) func(c *gin.Context) {
 			return
 		}
 
-		cal := createCal(timetable, course, annoInt)
+		cal, err := createCal(timetable, course, annoInt, subjects)
+		if err != nil {
+			_ = c.Error(err)
+			c.String(http.StatusInternalServerError, "Unable to create calendar")
+			return
+		}
+
 		buf := bytes.NewBuffer(nil)
 		err = cal.SerializeTo(buf)
 		if err != nil {
@@ -207,28 +222,34 @@ func successCalendar(c *gin.Context, cal *bytes.Buffer) {
 	c.String(http.StatusOK, cal.String())
 }
 
-func createCal(timetable unibo.Timetable, course *unibo.Course, year int) (cal *ics.Calendar) {
-	cal = toICS(timetable)
-	cal.SetName(fmt.Sprintf("%s - %d year", course.Descrizione, year))
-	cal.SetDescription(
-		fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s", year, course.Descrizione),
-	)
-	return
-}
+// createCal creates a calendar from the given timetable.
+//
+// If subjectCodes is not nil, it will be used to filter the timetable by subjects.
+func createCal(
+	timetable unibo.Timetable,
+	course *unibo.Course,
+	year int,
+	subjectCodes []string,
+) (*ics.Calendar, error) {
 
-func toICS(t unibo.Timetable) *ics.Calendar {
+	// Filter timetable by subjects
+	if subjectCodes != nil {
+		timetable = filterTimetableBySubjects(timetable, subjectCodes)
+	}
+
 	cal := ics.NewCalendar()
 	cal.SetMethod(ics.MethodRequest)
 
-	for _, event := range t {
+	for _, event := range timetable {
 		sha := sha1.New()
 		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s", event.CodModulo, event.Start, event.End)))
 		if err != nil {
-			return nil
+			return nil, err
 		}
-		uid := fmt.Sprintf("%x", sha.Sum(nil))
 
-		e := cal.AddEvent(uid)
+		eventUid := fmt.Sprintf("%x", sha.Sum(nil))
+
+		e := cal.AddEvent(eventUid)
 		e.SetOrganizer(event.Docente)
 		e.SetSummary(event.Title)
 		e.SetStartAt(event.Start.Time)
@@ -237,13 +258,13 @@ func toICS(t unibo.Timetable) *ics.Calendar {
 		e.SetDtStampTime(time.Now()) // https://www.kanzaki.com/docs/ical/dtstamp.html
 
 		b := strings.Builder{}
-
 		b.WriteString(fmt.Sprintf("Docente: %s\n", event.Docente))
 		if len(event.Aule) > 0 {
 			b.WriteString(fmt.Sprintf("Aula: %s\n", event.Aule[0].DesRisorsa))
 		}
 		b.WriteString(fmt.Sprintf("Cfu: %d\n", event.Cfu))
 		b.WriteString(fmt.Sprintf("Periodo: %s\n", event.Periodo))
+		b.WriteString(fmt.Sprintf("Codice modulo: %s\n", event.CodModulo))
 
 		e.SetDescription(b.String())
 
@@ -252,5 +273,22 @@ func toICS(t unibo.Timetable) *ics.Calendar {
 		}
 	}
 
-	return cal
+	calName := fmt.Sprintf("%s - %d year", course.Descrizione, year)
+	cal.SetName(calName)
+
+	calDesc := fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s",
+		year, course.Descrizione)
+	cal.SetDescription(calDesc)
+
+	return cal, nil
+}
+
+func filterTimetableBySubjects(timetable unibo.Timetable, codes []string) unibo.Timetable {
+	filtered := make(unibo.Timetable, 0, len(timetable))
+	for _, event := range timetable {
+		if slices.Contains(codes, event.CodModulo) {
+			filtered = append(filtered, event)
+		}
+	}
+	return filtered
 }
