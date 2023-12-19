@@ -264,8 +264,9 @@ func createCal(
 		b := strings.Builder{}
 		b.WriteString(fmt.Sprintf("Docente: %s\n", event.Teacher))
 		if len(event.Classrooms) > 0 {
-			b.WriteString(fmt.Sprintf("Aula: %s\n", event.Classrooms[0].Description))
-			e.SetLocation(event.Classrooms[0].Description)
+			classroom := event.Classrooms[0]
+			b.WriteString(fmt.Sprintf("Aula: %s\n", classroom.ResourceDesc))
+			e.SetLocation(classroom.ResourceDesc)
 		}
 		b.WriteString(fmt.Sprintf("Cfu: %d\n", event.Cfu))
 		b.WriteString(fmt.Sprintf("Periodo: %s\n", event.Interval))
