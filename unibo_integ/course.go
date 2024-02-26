@@ -3,12 +3,14 @@ package unibo_integ
 import (
 	"bytes"
 	"fmt"
-	"github.com/csunibo/unibo-go/curriculum"
-	"github.com/csunibo/unibo-go/timetable"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/csunibo/unibo-go/curriculum"
+	"github.com/csunibo/unibo-go/timetable"
+	"github.com/rs/zerolog/log"
 
 	"github.com/patrickmn/go-cache"
 )
@@ -61,27 +63,29 @@ func (c Course) GetCourseWebsiteId() (CourseId, error) {
 	return websiteId, nil
 }
 
-var reg = regexp.MustCompile(`<a title="Sito del corso" href="https://corsi\.unibo\.it/(.+?)"`)
+var reg = regexp.MustCompile(`<a href="https://corsi\.unibo\.it/(.+?)"`)
 
 func (c Course) scrapeCourseWebsiteId() (CourseId, error) {
 
 	resp, err := Client.Get(c.Url)
 	if err != nil {
-		return CourseId{}, err
+		return CourseId{}, fmt.Errorf("unable to get course website: %w", err)
 	}
+
+	log.Debug().Str("url", c.Url).Msg("scraping course website")
 
 	buf := new(bytes.Buffer)
 
 	// Read all body
 	_, err = io.Copy(buf, resp.Body)
 	if err != nil {
-		return CourseId{}, err
+		return CourseId{}, fmt.Errorf("unable to read course website: %w", err)
 	}
 
 	// Close body
 	err = resp.Body.Close()
 	if err != nil {
-		return CourseId{}, err
+		return CourseId{}, fmt.Errorf("unable to close course website: %w", err)
 	}
 
 	// Convert body to string
@@ -97,6 +101,10 @@ func (c Course) scrapeCourseWebsiteId() (CourseId, error) {
 
 	// laurea/IngegneriaInformatica -> IngegneriaInformatica
 	split := strings.Split(id, "/")
+	if len(split) != 2 {
+		return CourseId{}, fmt.Errorf("unexpected number of splits: %d (the website has changed?)", len(split))
+	}
+
 	return CourseId{split[0], split[1]}, nil
 }
 

@@ -183,9 +183,8 @@ func getCoursesCal(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 		var subjects []string
 		if subjectIds != "" {
 			subjects = strings.Split(subjectIds, ",")
+			log.Debug().Strs("subjects", subjects).Msg("queried subjects")
 		}
-
-		log.Debug().Any("subjects", subjects).Msg("Subjects")
 
 		// Try to retrieve timetable, otherwise return 500
 		courseTimetable, err := course.GetTimetable(annoInt, curr, nil)

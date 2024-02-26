@@ -2,12 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/csunibo/unibo-go/opendata"
 	"os"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/csunibo/unibo-go/opendata"
 
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"

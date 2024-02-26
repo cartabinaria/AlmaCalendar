@@ -16,8 +16,8 @@ github.com/chenzhuoyu/iasm v0.9.1 h1:tUHQJXo3NhBqw6s33wkGn9SP3bvrWLdlVIJ3hQBL7P0
 github.com/chenzhuoyu/iasm v0.9.1/go.mod h1:Xjy2NpN3h7aUqeqM+woSuuvxmIe6+DDsiNLIrkAmYog=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/csunibo/unibo-go v0.0.9 h1:bLGzNZFvU/TXB+Depn72bO7F3yJ73EjFbM8E9iRs1kM=
-github.com/csunibo/unibo-go v0.0.9/go.mod h1:h2+xnccHa7x48RNB6d07bpHQ01ozw4oihgDOlvVrJ9U=
+github.com/csunibo/unibo-go v0.0.10 h1:UwFIvTpXMKZCOVoX564RmqQttXTTs5Xz5hCAjun8NFk=
+github.com/csunibo/unibo-go v0.0.10/go.mod h1:h2+xnccHa7x48RNB6d07bpHQ01ozw4oihgDOlvVrJ9U=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
