@@ -28,6 +28,8 @@ import (
 	"github.com/VaiTon/unibocalendar/unibo_integ"
 )
 
+//go:generate pnpm run css:build
+
 const templateDir = "./templates"
 
 func createMyRender() multitemplate.Renderer {

@@ -14,8 +14,14 @@ Per compilare il progetto eseguire
 
 ```bash
 pnpm install
-pnpm run css:build
+go generate ./...
 go build
+```
+
+o più semplicemente
+
+```bash
+just
 ```
 
 Il file generato (`unibocalendar`) contiene tutto il necessario per l'esecuzione del programma.
