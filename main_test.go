@@ -12,6 +12,8 @@ import (
 
 func Test_coursePage(t *testing.T) {
 
+	downloadOpenDataIfNewer()
+
 	data, err := openData()
 	if err != nil {
 		t.Fatal(err)
