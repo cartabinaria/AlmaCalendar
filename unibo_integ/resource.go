@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/csunibo/unibo-go/opendata"
+	"github.com/cartabinaria/unibo-go/opendata"
 )
 
 func DownloadResource(resource *opendata.Resource) ([]Course, error) {

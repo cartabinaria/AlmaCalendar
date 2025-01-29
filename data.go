@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/csunibo/unibo-go/opendata"
+	"github.com/cartabinaria/unibo-go/opendata"
 
 	"github.com/rs/zerolog/log"
 

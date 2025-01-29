@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/csunibo/unibo-go/curriculum"
-	"github.com/csunibo/unibo-go/timetable"
+	"github.com/cartabinaria/unibo-go/curriculum"
+	"github.com/cartabinaria/unibo-go/timetable"
 	"github.com/rs/zerolog/log"
 
 	"github.com/patrickmn/go-cache"

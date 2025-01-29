@@ -13,14 +13,14 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/csunibo/unibo-go/curriculum"
-	"github.com/csunibo/unibo-go/timetable"
+	"github.com/cartabinaria/unibo-go/curriculum"
+	"github.com/cartabinaria/unibo-go/timetable"
 
 	ics "github.com/arran4/golang-ical"
 	"github.com/gin-contrib/multitemplate"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
-	"github.com/lf4096/gin-compress"
+	compress "github.com/lf4096/gin-compress"
 	"github.com/patrickmn/go-cache"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
