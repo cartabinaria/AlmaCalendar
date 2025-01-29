@@ -5,7 +5,7 @@ go 1.22.1
 require (
 	github.com/arran4/golang-ical v0.3.2
 	github.com/cartabinaria/unibo-go v0.3.0
-	github.com/gin-contrib/multitemplate v1.0.1
+	github.com/gin-contrib/multitemplate v1.0.2
 	github.com/gin-contrib/size v1.0.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/assert/v2 v2.2.0
@@ -45,6 +45,6 @@ require (
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	google.golang.org/protobuf v1.36.0 // indirect
+	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
