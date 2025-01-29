@@ -11,7 +11,6 @@ import (
 	"github.com/csunibo/unibo-go/opendata"
 
 	"github.com/rs/zerolog/log"
-	"github.com/samber/lo"
 
 	"github.com/VaiTon/unibocalendar/unibo_integ"
 )
@@ -77,11 +76,14 @@ func downloadOpenDataIfNewer() {
 	actualYear := time.Now().Year()
 
 	// Filter courses by actual year
-	courses = lo.Filter(courses, func(c unibo_integ.Course, _ int) bool {
-		return strings.Contains(c.AnnoAccademico, strconv.Itoa(actualYear))
-	})
+	yearCourses := make([]unibo_integ.Course, 0)
+	for _, c := range courses {
+		if strings.Contains(c.AnnoAccademico, strconv.Itoa(actualYear)) {
+			yearCourses = append(yearCourses, c)
+		}
+	}
 
-	err = saveData(courses)
+	err = saveData(yearCourses)
 	if err != nil {
 		log.Panic().Err(err).Msg("Unable to save courses")
 	}
