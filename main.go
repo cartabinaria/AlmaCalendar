@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -353,6 +354,10 @@ func getSubjectsMapFromCourseAndCurricula(course *unibo_integ.Course, curricula 
 
 			subjects = courseTimetable.GetSubjects()
 			subjectsCache.Set(key, subjects, cache.DefaultExpiration)
+
+			sort.Slice(subjects, func(i, j int) bool {
+				return subjects[i].Name < subjects[j].Name
+			})
 
 			m[y][c] = subjects
 		}
