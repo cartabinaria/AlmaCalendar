@@ -99,7 +99,7 @@
 
             const btnCopyUrl = el.getElementsByTagName("button")[0]
             btnCopyUrl.addEventListener("click", () => {
-                navigator.clipboard.writeText(pre.innerHTML);
+                navigator.clipboard.writeText(pre.textContent);
             });
 
 
@@ -122,7 +122,7 @@
         // Given an url string it returns the subject added
         function addSubject(url, subject) {
           if (url.includes("subjects")) {
-            url = url.replace(",,", "")
+            url = url.replace(",,", ",")
             url = url.replace("=,", "=")
             
             let last_char = url.slice(-1)
@@ -142,7 +142,7 @@
         // Given an url string it returns the subject removed from the string
         function removeSubject(url, subject) {
           url = url.replace(subject, "")
-          url = url.replace(",,", "")
+          url = url.replace(",,", ",")
           url = url.replace("=,", "=")
           return url
         }
@@ -170,8 +170,8 @@
               let res
 
               if (ck.checked) {
-                console.log(`Adding ${o} to: ${class_name}`)
-                res = addSubject(plain_string, o)
+                console.log(`Adding ${o} to: ${class_name}`);
+                res = addSubject(plain_string, o);
               } else {
                 console.log(`Removing ${o} to: ${class_name}`)
                 res = removeSubject(plain_string, o)
