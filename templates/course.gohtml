@@ -83,12 +83,12 @@
 
         for (const el of elements) {
             const pre = el.getElementsByTagName("pre")[0]
-            const calPath = pre.innerHTML;
+            const calPath = pre.textContent;
 
 
             const webcalLink = `webcal://${url.host}${calPath}`
 
-            pre.innerHTML = webcalLink;
+            pre.textContent = webcalLink;
             // Select all text on click
             pre.addEventListener("click", () => {
                 const range = document.createRange();
@@ -164,7 +164,7 @@
 
             els = document.getElementsByClassName(class_name)
             // We need to get a cleare string of the calendar URL.
-            plain_string = document.getElementById(class_name).innerHTML
+            plain_string = document.getElementById(class_name).textContent
 
             for (const el of els) {
               let res
@@ -179,7 +179,7 @@
 
               // Check if element is tye <a href="..."/>
               if (el.nodeName != "A") {
-                el.innerHTML = res
+                el.textContent = res
               } else {
 
                 if (el.classList.contains("open")) {
