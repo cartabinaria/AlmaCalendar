@@ -181,9 +181,13 @@
               if (el.nodeName != "A") {
                 el.textContent = res
               } else {
-
                 if (el.classList.contains("open")) {
-                  el.href = res
+                  el.href = openPrefix + new URLSearchParams({
+                      feed: res.replace("webcal://", "https://"),
+                      cors: false,
+                      title: "Lezioni",
+                      hideinput: true
+                  })
                 } else if (el.classList.contains("google")) {
                   el.href = googlePrefix + encodeURIComponent(res)
                 } else if (el.classList.contains("apple")) {
