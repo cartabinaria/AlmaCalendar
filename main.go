@@ -2,22 +2,17 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha1"
 	"fmt"
 	"net/http"
 	"os"
 	"path"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/cartabinaria/unibo-go/curriculum"
-	"github.com/cartabinaria/unibo-go/timetable"
 
-	ics "github.com/arran4/golang-ical"
 	"github.com/gin-contrib/multitemplate"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
@@ -145,8 +140,6 @@ func coursePage(courses unibo_integ.CoursesMap) func(c *gin.Context) {
 	}
 }
 
-var calcache = cache.New(time.Minute*10, time.Minute*30)
-
 func getCoursesCal(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 	return func(ctx *gin.Context) {
 		id := ctx.Param("id")
@@ -242,152 +235,4 @@ func successCalendar(c *gin.Context, cal *bytes.Buffer) {
 	c.Header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
 
 	c.String(http.StatusOK, cal.String())
-}
-
-// createCal creates a calendar from the given timetable.
-//
-// If subjectCodes is not nil, it will be used to filter the timetable by subjects.
-func createCal(
-	timetable timetable.Timetable,
-	course *unibo_integ.Course,
-	year int,
-	subjectCodes []string,
-) (*ics.Calendar, error) {
-
-	// Filter timetable by subjects
-	if subjectCodes != nil {
-		timetable = filterTimetableBySubjects(timetable, subjectCodes)
-	}
-
-	cal := ics.NewCalendar()
-	cal.SetMethod(ics.MethodRequest)
-
-	for _, event := range timetable {
-		sha := sha1.New()
-		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s", event.CodModulo, event.Start, event.End)))
-		if err != nil {
-			return nil, err
-		}
-
-		eventUid := fmt.Sprintf("%x", sha.Sum(nil))
-
-		e := cal.AddEvent(eventUid)
-		e.SetOrganizer(event.Teacher)
-		e.SetSummary(event.Title)
-		e.SetStartAt(event.Start.Time)
-		e.SetEndAt(event.End.Time)
-
-		e.SetDtStampTime(time.Now()) // https://www.kanzaki.com/docs/ical/dtstamp.html
-
-		b := strings.Builder{}
-		b.WriteString(fmt.Sprintf("Docente: %s\n", event.Teacher))
-		if len(event.Classrooms) > 0 {
-			classroom := event.Classrooms[0]
-			b.WriteString(fmt.Sprintf("Aula: %s\n", classroom.ResourceDesc))
-			e.SetLocation(classroom.ResourceDesc)
-		}
-		b.WriteString(fmt.Sprintf("Cfu: %d\n", event.Cfu))
-		b.WriteString(fmt.Sprintf("Periodo: %s\n", event.Interval))
-		b.WriteString(fmt.Sprintf("Codice modulo: %s\n", event.CodModulo))
-
-		e.SetDescription(b.String())
-	}
-
-	calName := fmt.Sprintf("%s - %d year", course.Descrizione, year)
-	cal.SetName(calName)
-
-	calDesc := fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s",
-		year, course.Descrizione)
-	cal.SetDescription(calDesc)
-
-	return cal, nil
-}
-
-func filterTimetableBySubjects(t timetable.Timetable, codes []string) timetable.Timetable {
-	filtered := make([]timetable.Event, 0, len(t))
-	for _, event := range t {
-		if slices.Contains(codes, event.CodModulo) {
-			filtered = append(filtered, event)
-		}
-	}
-	return filtered
-}
-
-var (
-	subjectsCacheExpirationTime = time.Hour * 4
-	subjectsCache               = cache.New(subjectsCacheExpirationTime, time.Hour*6)
-)
-
-type subjectMap = map[int]map[curriculum.Curriculum][]timetable.SimpleSubject
-
-// The return type is a map that for every year of the course map a curriculum
-// to a slice of subjects
-func getSubjectsMapFromCourseAndCurricula(course *unibo_integ.Course, curricula map[int]curriculum.Curricula) (subjectMap, error) {
-	if course == nil {
-		return nil, fmt.Errorf("course parameter is nil")
-	}
-
-	// To get a curricula from a course we need fetch from the unibo API. Sometimes
-	// this could fail, so the curricula is nil. We need to check to avoid crashing
-	// the program.
-	if curricula == nil {
-		return nil, fmt.Errorf("curricula parameter is nil")
-	}
-
-	m := make(subjectMap)
-	for y, cs := range curricula {
-		m[y] = make(map[curriculum.Curriculum][]timetable.SimpleSubject)
-		for _, c := range cs {
-
-			var subjects []timetable.SimpleSubject
-			key := fmt.Sprintf("%d-%d-%s", course.Codice, y, c.Value)
-			if t, found := subjectsCache.Get(key); found {
-				m[y][c] = t.([]timetable.SimpleSubject)
-				continue
-			}
-
-			courseTimetable, err := course.GetTimetable(y, c, nil)
-			if err != nil {
-				// Can't do much. We return nil so the caller can retry
-				return nil, fmt.Errorf("unable to retrieve timetable for subjects: %w", err)
-			}
-
-			subjects = courseTimetable.GetSubjects()
-			subjectsCache.Set(key, subjects, cache.DefaultExpiration)
-
-			sort.Slice(subjects, func(i, j int) bool {
-				return subjects[i].Name < subjects[j].Name
-			})
-
-			m[y][c] = subjects
-		}
-	}
-
-	return m, nil
-}
-
-// This functions calls getSubjectsMapFromCourseAndCurricula for every course,
-// so the cache is always full and users do not see a slow site
-func fillSubjectsCache(courses unibo_integ.CoursesMap) {
-	// This is to make sure everything is started
-	time.Sleep(time.Second * 5)
-
-	for _, course := range courses {
-		log.Debug().Int("course-code", course.Codice).Str("course-name", course.Descrizione).Msg("queried subjects")
-
-		curricula, err := course.GetAllCurricula()
-		if err != nil {
-			log.Err(err).Int("course-code", course.Codice).Str("course-name", course.Descrizione).Msg("Can't get curricula in workerfor course")
-			continue
-		}
-		_, err = getSubjectsMapFromCourseAndCurricula(&course, curricula)
-		if err != nil {
-			log.Err(err).Msg("Can't subjects in worker")
-			continue
-		}
-
-		time.Sleep(time.Second * 30)
-	}
-
-	time.Sleep(subjectsCacheExpirationTime)
 }
