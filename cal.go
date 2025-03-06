@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cartabinaria/unibo-go/exams"
 	"github.com/cartabinaria/unibo-go/timetable"
 
 	ics "github.com/arran4/golang-ical"
@@ -13,10 +14,10 @@ import (
 	"github.com/VaiTon/unibocalendar/unibo_integ"
 )
 
-// createCal creates a calendar from the given timetable.
+// createCourseCal creates a calendar from the given timetable.
 //
 // If subjectCodes is not nil, it will be used to filter the timetable by subjects.
-func createCal(
+func createCourseCal(
 	timetable timetable.Timetable,
 	course *unibo_integ.Course,
 	year int,
@@ -68,6 +69,42 @@ func createCal(
 	calDesc := fmt.Sprintf("Orario delle lezioni del %d anno del corso di %s",
 		year, course.Descrizione)
 	cal.SetDescription(calDesc)
+
+	return cal, nil
+}
+
+func createExamsCal(exams []exams.Exam, title, description string) (*ics.Calendar, error) {
+	cal := ics.NewCalendar()
+	cal.SetMethod(ics.MethodRequest)
+
+	for _, exam := range exams {
+		sha := sha1.New()
+		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s%s", exam.SubjectName, exam.Date, exam.Location, exam.Teacher)))
+		if err != nil {
+			return nil, err
+		}
+
+		eventUid := fmt.Sprintf("%x", sha.Sum(nil))
+
+		e := cal.AddEvent(eventUid)
+		e.SetOrganizer(exam.Teacher)
+		e.SetSummary(exam.SubjectName)
+		e.SetStartAt(exam.Date)
+		e.SetEndAt(exam.Date.Add(2 * time.Hour))
+		e.SetLocation(exam.Location)
+
+		e.SetDtStampTime(time.Now())
+
+		b := strings.Builder{}
+		b.WriteString(fmt.Sprintf("Docente: %s\n", exam.Teacher))
+		b.WriteString(fmt.Sprintf("Codice: %s\n", exam.SubjectCode))
+		b.WriteString(fmt.Sprintf("Tipo: %s\n", exam.Type))
+
+		e.SetDescription(b.String())
+	}
+
+	cal.SetName(title)
+	cal.SetDescription(description)
 
 	return cal, nil
 }

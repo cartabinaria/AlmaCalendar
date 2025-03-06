@@ -12,6 +12,7 @@ import (
 	"text/template"
 
 	"github.com/cartabinaria/unibo-go/curriculum"
+	"github.com/cartabinaria/unibo-go/exams"
 
 	"github.com/gin-contrib/multitemplate"
 	limits "github.com/gin-contrib/size"
@@ -98,6 +99,8 @@ func setupRouter(courses unibo_integ.CoursesMap) *gin.Engine {
 	r.GET("/courses/:id", coursePage(courses))
 
 	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
+
+	r.GET("/exams/:id/:anno", getExams(&courses))
 	return r
 }
 
@@ -205,7 +208,7 @@ func getCoursesCal(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 			return
 		}
 
-		cal, err := createCal(courseTimetable, course, annoInt, subjects)
+		cal, err := createCourseCal(courseTimetable, course, annoInt, subjects)
 		if err != nil {
 			_ = ctx.Error(err)
 			ctx.String(http.StatusInternalServerError, "Unable to create calendar")
@@ -221,6 +224,158 @@ func getCoursesCal(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 		}
 
 		calcache.Set(cacheKey, buf, cache.DefaultExpiration)
+
+		successCalendar(ctx, buf)
+	}
+}
+
+func getExams(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		anno := ctx.Param("anno")
+
+		// Check if id is a number, otherwise return 400
+		annoInt, err := strconv.Atoi(anno)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, "Invalid year")
+			return
+		}
+
+		// Check if id is a number, otherwise return 400
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, "Invalid id")
+			return
+		}
+
+		// Check if course exists, otherwise return 404
+		course, found := courses.FindById(idInt)
+		if !found {
+			ctx.String(http.StatusNotFound, "Course not found")
+			return
+		}
+
+		if annoInt <= 0 || annoInt > course.DurataAnni {
+			ctx.String(http.StatusBadRequest, "Invalid year")
+			return
+		}
+
+		curriculumId := ctx.Query("curr")
+		curr := curriculum.Curriculum{}
+		isCurrValid := false
+		if curriculumId != "" {
+			curr.Value = curriculumId
+			isCurrValid = true
+		}
+
+		subjectIds := ctx.Query("subjects")
+		var subjects []string
+		if subjectIds != "" {
+			tmp := strings.Split(subjectIds, ",")
+			for i := range tmp {
+				if len(tmp[i]) != 0 {
+					subjects = append(subjects, tmp[i])
+				}
+			}
+			log.Debug().Strs("subjects", subjects).Msg("queried subjects")
+		}
+
+		slices.Sort(subjects)
+
+		// cacheKey := fmt.Sprintf("%s-%s-%s-%s", id, anno, curr.Value, subjects)
+		// if cal, found := calcache.Get(cacheKey); found {
+		// 	successCalendar(ctx, cal.(*bytes.Buffer))
+		// 	return
+		// }
+		//
+
+		// Try to retrieve exams, otherwise return 500
+		// courseTimetable, err := course.GetTimetable(annoInt, curr, nil)
+		// if err != nil {
+		// 	_ = ctx.Error(err)
+		// 	ctx.String(http.StatusInternalServerError, "Unable to retrieve timetable")
+		// 	return
+		// }
+		//
+
+		courseID, err := course.GetCourseWebsiteId()
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Unable to get course website id")
+			return
+		}
+
+		curricula, err := course.GetAllCurricula()
+		if err != nil {
+			_ = ctx.Error(fmt.Errorf("unable to retrieve curricula: %w", err))
+			curricula = nil
+		}
+
+		subjectsMap, err := getSubjectsMapFromCourseAndCurricula(course, curricula)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Unable to get subjects for course and curricula")
+			return
+		}
+
+		if isCurrValid {
+			log.Printf("%v", curr)
+			index := slices.IndexFunc([]curriculum.Curriculum(curricula[annoInt]), func(c curriculum.Curriculum) bool { return c.Value == curr.Value })
+			if index == -1 {
+				ctx.String(http.StatusBadRequest, "Invalid curriculum")
+				return
+			}
+
+			curr = curricula[annoInt][index]
+		} else {
+			curr = curricula[annoInt][0]
+		}
+		validSubjects := subjectsMap[annoInt][curr]
+
+		filteredValidSubjectsCodes := make([]string, 0)
+		for _, s := range validSubjects {
+			if slices.Contains(subjects, s.Code) || len(subjects) == 0 {
+				filteredValidSubjectsCodes = append(filteredValidSubjectsCodes, s.Code)
+			}
+		}
+
+		log.Debug().Any("validSubjects", validSubjects).Msg("validSubjects")
+
+		allExams, err := exams.GetExams(courseID.Tipologia, courseID.Id)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Unable to get exams")
+			return
+		}
+
+		log.Debug().Any("allExams", allExams).Msg("allExams")
+		log.Debug().Any("filteredValidSubjectsCodes", filteredValidSubjectsCodes).Msg("filteredValidSubjectsCodes")
+
+		filteredExams := make([]exams.Exam, 0)
+		for _, exam := range allExams {
+			if slices.Contains(filteredValidSubjectsCodes, exam.SubjectCode) {
+				filteredExams = append(filteredExams, exam)
+			}
+		}
+
+		log.Debug().Any("filteredExams", filteredExams).Msg("filteredExams")
+
+		calName := fmt.Sprintf("Esami %d anno %s", annoInt, course.Descrizione)
+		description := fmt.Sprintf("Esami del %d anno del corso di %s", annoInt, course.Descrizione)
+
+		cal, err := createExamsCal(filteredExams, calName, description)
+		if err != nil {
+			_ = ctx.Error(err)
+			ctx.String(http.StatusInternalServerError, "Unable to create calendar")
+			return
+		}
+
+		buf := bytes.NewBuffer(nil)
+		err = cal.SerializeTo(buf)
+		if err != nil {
+			_ = ctx.Error(err)
+			ctx.String(http.StatusInternalServerError, "Unable to serialize calendar")
+			return
+		}
+
+		// calcache.Set(cacheKey, buf, cache.DefaultExpiration)
 
 		successCalendar(ctx, buf)
 	}
