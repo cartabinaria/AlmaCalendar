@@ -20,9 +20,13 @@
             {{range $curriculum := $yCurricula }}
             {{ $ycTeachings := index $yTeachings $curriculum }}
                 <div class="mt-4">
-                    <h2 class="text-3xl ">
+                    <h2 class="text-3xl">
                         Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}
                     </h2>
+
+                    <h4 class="text-md mt-1 font-semibold">
+                        Lezioni
+                    </h4>
                     <div class="mt-2 cal flex gap-4">
                         <!-- Filter -->
                         {{ if gt (len $ycTeachings) 1 }}
@@ -36,6 +40,7 @@
                 <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
                 curriculum={{ $curriculum.Value }}
                 option={{ $teaching.Code }}
+                mode="l"
               />
                                   <span class="label-text ">{{ $teaching.Name }}</span>
                                 </label>
@@ -46,8 +51,8 @@
                         </div>
                         {{ end }}
                         <!-- End filter -->
-                        <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose {{ $anno }}_{{ $curriculum.Value }}" 
-                             id="{{ $anno }}_{{ $curriculum.Value }}"
+                        <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose l{{ $anno }}_{{ $curriculum.Value }}" 
+                             id="l{{ $anno }}_{{ $curriculum.Value }}"
                              title="Link del calendario in formato WebCal"
                              tabindex="0">/cal/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
                         <!-- Buttons -->
@@ -56,13 +61,74 @@
                                 <span>COPY</span>
                                 <span class="icon-[heroicons--document-duplicate-solid] text-xl"></span>
                             </button>
-                            <a class="btn btn-accent join-item open {{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
+                            <a class="btn btn-accent join-item open l{{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
                         </div>
                         <div class="join">
-                            <a class="btn btn-info bg-white join-item google {{ $anno }}_{{ $curriculum.Value }}">
+                            <a class="btn btn-info bg-white join-item google l{{ $anno }}_{{ $curriculum.Value }}">
                                 Google Calendar <span class="icon-[logos--google-calendar] text-xl"></span>
                             </a>
-                            <a class="btn btn-info bg-white join-item apple {{ $anno }}_{{ $curriculum.Value }}">
+                            <a class="btn btn-info bg-white join-item apple l{{ $anno }}_{{ $curriculum.Value }}">
+                                Apple Calendar <span class="icon-[logos--apple] text-xl"></span>
+                            </a>
+                        </div>
+                        <!-- End buttons -->
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                      <h4 class="text-md font-semibold">
+                          Esami
+                      </h4>
+
+                      <div class="dropdown dropdown-right dropdown-end dropdown-hover">
+                      <div tabindex="0" role="button" class="btn m-1 btn-xs btn-warning btn-circle">
+                        <span class="icon-[heroicons--exclaimation-triangle] text-xl"></span>
+                      </div>
+                        <div tabindex="0" class="dropdown-content menu bg-warning rounded-box z-1 w-64 p-2 shadow-sm">
+                          <div class="text-lg font-bold">Disclaimer:</div> Not all exams will be visible. Availability depends on whether professors have uploaded them to AlmaEsami.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-2 cal flex gap-4">
+                        <!-- Filter -->
+                        {{ if gt (len $ycTeachings) 1 }}
+                        <div class="dropdown dropdown-bottom">
+                          <div tabindex="0" role="button" class="btn m-1"> Filter </div>
+                          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                          {{ range $teaching := $ycTeachings }}
+                            <li class="bg-base-100">
+                              <div class="form-control">
+                                <label class="label cursor-pointer">
+                <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
+                curriculum={{ $curriculum.Value }}
+                option={{ $teaching.Code }}
+                mode="e"
+              />
+                                  <span class="label-text ">{{ $teaching.Name }}</span>
+                                </label>
+                              </div>      
+                            </li>
+                          {{ end }}
+                          </ul>
+                        </div>
+                        {{ end }}
+                        <!-- End filter -->
+                        <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose e{{ $anno }}_{{ $curriculum.Value }}" 
+                             id="e{{ $anno }}_{{ $curriculum.Value }}"
+                             title="Link del calendario in formato WebCal"
+                             tabindex="0">/exams/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
+                        <!-- Buttons -->
+                        <div>
+                            <button class="btn btn-accent join-item" title="Copia">
+                                <span>COPY</span>
+                                <span class="icon-[heroicons--document-duplicate-solid] text-xl"></span>
+                            </button>
+                            <a class="btn btn-accent join-item open e{{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
+                        </div>
+                        <div class="join">
+                            <a class="btn btn-info bg-white join-item google e{{ $anno }}_{{ $curriculum.Value }}">
+                                Google Calendar <span class="icon-[logos--google-calendar] text-xl"></span>
+                            </a>
+                            <a class="btn btn-info bg-white join-item apple e{{ $anno }}_{{ $curriculum.Value }}">
                                 Apple Calendar <span class="icon-[logos--apple] text-xl"></span>
                             </a>
                         </div>
@@ -154,13 +220,14 @@
           let a = ck.getAttribute("anno")
           let c = ck.getAttribute("curriculum")
           let o = ck.getAttribute("option")
+          let m = ck.getAttribute("mode")
 
           if (!c) {
             c = ""
           } 
 
           ck.addEventListener("click", (event) => {
-            let class_name = `${a}_${c}`
+            let class_name = `${m}${a}_${c}`
 
             els = document.getElementsByClassName(class_name)
             // We need to get a cleare string of the calendar URL.
