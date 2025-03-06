@@ -333,7 +333,10 @@ func getExams(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 		filteredValidSubjectsCodes := make([]string, 0)
 		for _, s := range validSubjects {
 			if slices.Contains(subjects, s.Code) || len(subjects) == 0 {
-				filteredValidSubjectsCodes = append(filteredValidSubjectsCodes, s.Code)
+				// Some subject codes are not valid, because have the module number in the code.
+				// Something like "04642_1". We need to extract only the first part.
+				// TODO: Some codes are like "SPOT_79006" for the 8005 course. I've no idea what that means. We should check if they are valid on the exams period.
+				filteredValidSubjectsCodes = append(filteredValidSubjectsCodes, strings.Split(s.Code, "_")[0])
 			}
 		}
 
