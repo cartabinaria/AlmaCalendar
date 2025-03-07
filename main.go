@@ -282,22 +282,6 @@ func getExams(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 
 		slices.Sort(subjects)
 
-		// cacheKey := fmt.Sprintf("%s-%s-%s-%s", id, anno, curr.Value, subjects)
-		// if cal, found := calcache.Get(cacheKey); found {
-		// 	successCalendar(ctx, cal.(*bytes.Buffer))
-		// 	return
-		// }
-		//
-
-		// Try to retrieve exams, otherwise return 500
-		// courseTimetable, err := course.GetTimetable(annoInt, curr, nil)
-		// if err != nil {
-		// 	_ = ctx.Error(err)
-		// 	ctx.String(http.StatusInternalServerError, "Unable to retrieve timetable")
-		// 	return
-		// }
-		//
-
 		courseID, err := course.GetCourseWebsiteId()
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Unable to get course website id")
@@ -377,8 +361,6 @@ func getExams(courses *unibo_integ.CoursesMap) func(c *gin.Context) {
 			ctx.String(http.StatusInternalServerError, "Unable to serialize calendar")
 			return
 		}
-
-		// calcache.Set(cacheKey, buf, cache.DefaultExpiration)
 
 		successCalendar(ctx, buf)
 	}
