@@ -32,9 +32,9 @@
                         {{ if gt (len $ycTeachings) 1 }}
                         <div class="dropdown dropdown-bottom">
                           <div tabindex="0" role="button" class="btn m-1"> Filter </div>
-                          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                          <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[1] p-2 shadow">
                           {{ range $teaching := $ycTeachings }}
-                            <li class="bg-base-100">
+                            <li>
                               <div class="form-control">
                                 <label class="label cursor-pointer">
                 <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
@@ -93,9 +93,9 @@
                         {{ if gt (len $ycTeachings) 1 }}
                         <div class="dropdown dropdown-bottom">
                           <div tabindex="0" role="button" class="btn m-1"> Filter </div>
-                          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                          <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[1] p-2 shadow">
                           {{ range $teaching := $ycTeachings }}
-                            <li class="bg-base-100">
+                            <li>
                               <div class="form-control">
                                 <label class="label cursor-pointer">
                 <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
