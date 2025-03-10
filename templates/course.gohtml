@@ -24,9 +24,13 @@
                         Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}
                     </h2>
 
-                    <h4 class="text-md mt-1 font-semibold">
-                        Lezioni
-                    </h4>
+                    <div class="flex items-center mt-1 gap-4">
+                      <h4 class="text-md font-semibold">
+                          Lezioni
+                      </h4>
+                      <p class="l{{ $anno }}_{{ $curriculum.Value }}_text">
+                      </p>
+                    </div>
                     <div class="mt-2 cal flex gap-4">
                         <!-- Filter -->
                         {{ if gt (len $ycTeachings) 1 }}
@@ -41,6 +45,7 @@
                 curriculum={{ $curriculum.Value }}
                 option={{ $teaching.Code }}
                 mode="l"
+                innerText={{ $teaching.Name }}
               />
                                   <span class="label-text ">{{ $teaching.Name }}</span>
                                 </label>
@@ -51,7 +56,7 @@
                         </div>
                         {{ end }}
                         <!-- End filter -->
-                        <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose l{{ $anno }}_{{ $curriculum.Value }}" 
+                        <pre class="hidden input input-bordered font-mono h-auto w-auto py-2 leading-loose l{{ $anno }}_{{ $curriculum.Value }}" 
                              id="l{{ $anno }}_{{ $curriculum.Value }}"
                              title="Link del calendario in formato WebCal"
                              tabindex="0">/cal/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
@@ -87,6 +92,8 @@
                           <div class="text-lg font-bold">Disclaimer:</div> Not all exams will be visible. Availability depends on whether professors have uploaded them to AlmaEsami.
                         </div>
                       </div>
+                      <p class="e{{ $anno }}_{{ $curriculum.Value }}_text">
+                      </p>
                     </div>
                     <div class="mt-2 cal flex gap-4">
                         <!-- Filter -->
@@ -102,6 +109,7 @@
                 curriculum={{ $curriculum.Value }}
                 option={{ $teaching.Code }}
                 mode="e"
+                innerText={{ $teaching.Name }}
               />
                                   <span class="label-text ">{{ $teaching.Name }}</span>
                                 </label>
@@ -112,7 +120,7 @@
                         </div>
                         {{ end }}
                         <!-- End filter -->
-                        <pre class="input input-bordered font-mono h-auto w-auto py-2 leading-loose e{{ $anno }}_{{ $curriculum.Value }}" 
+                        <pre class="hidden input input-bordered font-mono h-auto w-auto py-2 leading-loose e{{ $anno }}_{{ $curriculum.Value }}" 
                              id="e{{ $anno }}_{{ $curriculum.Value }}"
                              title="Link del calendario in formato WebCal"
                              tabindex="0">/exams/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
@@ -262,6 +270,21 @@
                 }
               }
             }
+
+            let pclass_name = `${m}${a}_${c}_text`;
+            let el = document.getElementsByClassName(pclass_name)[0];
+
+            let text = el.innerText;
+            let value = ck.getAttribute("innerText");
+            console.log(text)
+            if (ck.checked) {
+              text = text + ` - ${value}`
+            } else {
+              text = text.replace(`- ${value}`, "")
+            }
+            console.log(text)
+
+            el.innerText = text
           })
         }
 
