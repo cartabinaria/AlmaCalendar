@@ -91,6 +91,10 @@ func setupRouter(courses unibo_integ.CoursesMap) *gin.Engine {
 
 	r.GET("/courses/:id", coursePage(courses))
 
+	r.GET("/courses/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	})
+
 	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
 
 	r.GET("/exams/:id/:anno", getExams(&courses))
