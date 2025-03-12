@@ -40,14 +40,14 @@
                           {{ range $teaching := $ycTeachings }}
                             <li>
                               <div class="form-control">
-                                <label class="label cursor-pointer">
-                <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
-                curriculum={{ $curriculum.Value }}
-                option={{ $teaching.Code }}
-                mode="l"
-                innerText={{ $teaching.Name }}
-              />
-                                  <span class="label-text ">{{ $teaching.Name }}</span>
+                                <label class="label cursor-pointer w-64 md:w-96 lg:w-[40rem] xl:w-full">
+                                  <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
+                                    curriculum={{ $curriculum.Value }}
+                                    option={{ $teaching.Code }}
+                                    mode="l"
+                                    innerText={{ $teaching.Name }}
+                                  />
+                                  <span class="label-text text-wrap w-full">{{ $teaching.Name }}</span>
                                 </label>
                               </div>      
                             </li>
@@ -68,13 +68,13 @@
                           </button>
                           <a class="btn btn-accent join-item open l{{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
                           <div class="md:join col-span-2 w-full flex flex-col md:flex-row gap-2 md:gap-0">
-                              <a class="btn btn-info bg-white join-item flex md:w-1/2 google l{{ $anno }}_{{ $curriculum.Value }}">
+                              <a class="btn btn-info bg-white join-item flex md:w-1/2 lg:w-3/5 google l{{ $anno }}_{{ $curriculum.Value }}">
                                 <div>
                                   Google Calendar 
                                 </div>
                                 <span class="icon-[logos--google-calendar] text-xl"></span>
                               </a>
-                              <a class="btn btn-info bg-white join-item md:w-1/2 apple flex l{{ $anno }}_{{ $curriculum.Value }}">
+                              <a class="btn btn-info bg-white join-item md:w-1/2 lg:w-3/5 apple flex l{{ $anno }}_{{ $curriculum.Value }}">
                                 <div>
                                   Apple Calendar 
                                 </div>
@@ -110,14 +110,14 @@
                           {{ range $teaching := $ycTeachings }}
                             <li>
                               <div class="form-control">
-                                <label class="label cursor-pointer">
+                                <label class="label cursor-pointer w-64 md:w-96 lg:w-[40rem] xl:w-full">
                 <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
                 curriculum={{ $curriculum.Value }}
                 option={{ $teaching.Code }}
                 mode="e"
                 innerText={{ $teaching.Name }}
               />
-                                  <span class="label-text ">{{ $teaching.Name }}</span>
+                                  <span class="label-text text-wrap w-full">{{ $teaching.Name }}</span>
                                 </label>
                               </div>      
                             </li>
@@ -138,13 +138,13 @@
                             </button>
                             <a class="btn btn-accent join-item open e{{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
                             <div class="md:join col-span-2 w-full flex flex-col md:flex-row gap-2 md:gap-0">
-                                <a class="btn btn-info bg-white join-item flex md:w-1/2 google e{{ $anno }}_{{ $curriculum.Value }}">
+                                <a class="btn btn-info bg-white join-item flex md:w-1/2 lg:w-3/5 google e{{ $anno }}_{{ $curriculum.Value }}">
                                     <div>
                                       Google Calendar 
                                     </div>
                                     <span class="icon-[logos--google-calendar] text-xl"></span>
                                 </a>
-                                <a class="btn btn-info bg-white join-item flex md:w-1/2 apple e{{ $anno }}_{{ $curriculum.Value }}">
+                                <a class="btn btn-info bg-white join-item flex md:w-1/2 lg:w-3/5 apple e{{ $anno }}_{{ $curriculum.Value }}">
                                     <div>
                                       Apple Calendar
                                     </div>
