@@ -7,11 +7,18 @@
     {{$curricula := .Curricula}}
     {{$teachings := .Teachings}}
 
-    <p class="text-xl">{{.Course.Tipologia}} in</p>
-    <h1 class="text-4xl font-bold mb-8">{{.Course.Descrizione}}</h1>
+    <div class="flex gap-4 items-center">
+      <a class="btn btn-ghost btn-lg" href="/">
+        <span class="icon-[heroicons--arrow-left-solid] text-2xl text-bold"></span>
+      </a>
+      <div>
+        <p class="text-xl">{{.Course.Tipologia}} in</p>
+        <h1 class="text-4xl font-bold">{{.Course.Descrizione}}</h1>
+        <a class="link link-info" href="{{.Course.Url}} "> Link al sito del corso </a>
+      </div>
+    </div>
 
 
-    <a class="link link-info" href="{{.Course.Url}}"> Link al sito del corso </a>
 
     {{range $anno := anniRange .Course.DurataAnni}}
         {{$yCurricula := index $curricula $anno}}
