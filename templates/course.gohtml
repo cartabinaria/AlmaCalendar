@@ -8,12 +8,12 @@
     {{$teachings := .Teachings}}
 
     <div class="flex gap-4 items-center">
-      <a class="btn btn-ghost btn-lg" href="/">
+      <a class="btn btn-ghost md:btn-lg" href="/">
         <span class="icon-[heroicons--arrow-left-solid] text-2xl text-bold"></span>
       </a>
       <div>
-        <p class="text-xl">{{.Course.Tipologia}} in</p>
-        <h1 class="text-4xl font-bold">{{.Course.Descrizione}}</h1>
+        <p class="md:text-xl">{{.Course.Tipologia}} in</p>
+        <h1 class="text-xl md:text-4xl font-bold">{{.Course.Descrizione}}</h1>
         <a class="link link-info" href="{{.Course.Url}} "> Link al sito del corso </a>
       </div>
     </div>
@@ -27,12 +27,12 @@
             {{range $curriculum := $yCurricula }}
             {{ $ycTeachings := index $yTeachings $curriculum }}
                 <div class="mt-4">
-                    <h2 class="text-3xl">
+                    <h2 class="text-md md:text-3xl">
                         Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}
                     </h2>
 
                     <div class="flex items-center mt-1 gap-4">
-                      <h4 class="text-md font-semibold">
+                      <h4 class="text-sm md:text-md font-semibold">
                           Lezioni
                       </h4>
                       <p class="l{{ $anno }}_{{ $curriculum.Value }}_text">
@@ -69,7 +69,7 @@
                              tabindex="0">/cal/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
                         <!-- Buttons -->
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 w-full max-w-3xl">
-                          <button class="btn btn-accent join-item" title="Copia">
+                          <button class="btn btn-md btn-accent join-item" title="Copia">
                               <span>COPY</span>
                               <span class="icon-[heroicons--document-duplicate-solid] text-xl"></span>
                           </button>
@@ -93,7 +93,7 @@
                     </div>
 
                     <div class="flex items-center mt-1">
-                      <h4 class="text-md font-semibold">
+                      <h4 class="text-sm md:text-md font-semibold ">
                           Esami
                       </h4>
 
@@ -108,7 +108,7 @@
                       <p class="e{{ $anno }}_{{ $curriculum.Value }}_text">
                       </p>
                     </div>
-                    <div class="mt-2 cal flex gap-4">
+                    <div class="mt-2 cal flex gap-4 items-center">
                         <!-- Filter -->
                         {{ if gt (len $ycTeachings) 1 }}
                         <details class="dropdown">
