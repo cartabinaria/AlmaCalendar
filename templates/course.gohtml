@@ -34,8 +34,8 @@
                     <div class="mt-2 cal flex gap-4 items-center">
                         <!-- Filter -->
                         {{ if gt (len $ycTeachings) 1 }}
-                        <div class="dropdown dropdown-bottom">
-                          <div tabindex="0" role="button" class="btn m-1"> Filter </div>
+                        <details class="dropdown">
+                          <summary tabindex="0" role="button" class="btn m-1"> Filter </summary>
                           <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[1] p-2 shadow">
                           {{ range $teaching := $ycTeachings }}
                             <li>
@@ -53,7 +53,7 @@
                             </li>
                           {{ end }}
                           </ul>
-                        </div>
+                        </details>
                         {{ end }}
                         <!-- End filter -->
                         <pre class="hidden input input-bordered font-mono h-auto w-auto py-2 leading-loose l{{ $anno }}_{{ $curriculum.Value }}" 
@@ -104,26 +104,26 @@
                     <div class="mt-2 cal flex gap-4">
                         <!-- Filter -->
                         {{ if gt (len $ycTeachings) 1 }}
-                        <div class="dropdown dropdown-bottom">
-                          <div tabindex="0" role="button" class="btn m-1"> Filter </div>
+                        <details class="dropdown">
+                          <summary tabindex="0" role="button" class="btn m-1"> Filter </summary>
                           <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[1] p-2 shadow">
                           {{ range $teaching := $ycTeachings }}
                             <li>
                               <div class="form-control">
                                 <label class="label cursor-pointer w-64 md:w-96 lg:w-[40rem] xl:w-full">
-                <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
-                curriculum={{ $curriculum.Value }}
-                option={{ $teaching.Code }}
-                mode="e"
-                innerText={{ $teaching.Name }}
-              />
+                                  <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
+                                    curriculum={{ $curriculum.Value }}
+                                    option={{ $teaching.Code }}
+                                    mode="e"
+                                    innerText={{ $teaching.Name }}
+                                  />
                                   <span class="label-text text-wrap w-full">{{ $teaching.Name }}</span>
                                 </label>
                               </div>      
                             </li>
                           {{ end }}
                           </ul>
-                        </div>
+                        </details>
                         {{ end }}
                         <!-- End filter -->
                         <pre class="hidden input input-bordered font-mono h-auto w-auto py-2 leading-loose e{{ $anno }}_{{ $curriculum.Value }}" 
