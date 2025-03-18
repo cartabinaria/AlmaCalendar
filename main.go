@@ -44,9 +44,6 @@ func createMyRender() multitemplate.Renderer {
 	r.AddFromFilesFuncs("index", funcMap,
 		path.Join(templateDir, "index.gohtml"), path.Join(templateDir, "base.gohtml"),
 	)
-	r.AddFromFilesFuncs("courses", funcMap,
-		path.Join(templateDir, "courses.gohtml"), path.Join(templateDir, "base.gohtml"),
-	)
 	r.AddFromFilesFuncs("course", funcMap,
 		path.Join(templateDir, "course.gohtml"), path.Join(templateDir, "base.gohtml"),
 	)
@@ -82,21 +79,21 @@ func setupRouter(courses unibo_integ.CoursesMap) *gin.Engine {
 
 	r.Static("/static", "./static")
 
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index", gin.H{})
-	})
-
 	coursesList := courses.ToList()
 	slices.SortFunc(coursesList, func(a, b unibo_integ.Course) int {
 		return b.Codice - a.Codice
 	})
-	r.GET("/courses", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "courses", gin.H{
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index", gin.H{
 			"courses": coursesList,
 		})
 	})
 
 	r.GET("/courses/:id", coursePage(courses))
+
+	r.GET("/courses/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	})
 
 	r.GET("/cal/:id/:anno", getCoursesCal(&courses))
 
