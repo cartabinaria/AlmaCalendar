@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/arran4/golang-ical v0.3.2
-	github.com/cartabinaria/unibo-go v0.3.2
+	github.com/cartabinaria/unibo-go v0.3.3
 	github.com/gin-contrib/multitemplate v1.1.0
 	github.com/gin-contrib/size v1.0.1
 	github.com/gin-gonic/gin v1.10.0

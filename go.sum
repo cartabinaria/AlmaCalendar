@@ -17,6 +17,8 @@ github.com/bytedance/sonic/loader v0.2.4 h1:ZWCw4stuXUsn1/+zQDqeE7JKP+QO47tz7QCN
 github.com/bytedance/sonic/loader v0.2.4/go.mod h1:N8A3vUdtUebEY2/VQC0MyhYeKUFosQU6FxH2JmUe6VI=
 github.com/cartabinaria/unibo-go v0.3.2 h1:3OQwbYiP2u+1ZhsvKqdlnIlQm2CfIdlwChHni1yY14Q=
 github.com/cartabinaria/unibo-go v0.3.2/go.mod h1:MteL3rAqgTmk6igszKUDrU5ABTFzneW+arlJ3t/ntko=
+github.com/cartabinaria/unibo-go v0.3.3 h1:ML49syni4BqAqURDLEMEFtn3ne7Qn9ZWo09tsu+njAo=
+github.com/cartabinaria/unibo-go v0.3.3/go.mod h1:MteL3rAqgTmk6igszKUDrU5ABTFzneW+arlJ3t/ntko=
 github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06/go.mod h1:DH46F32mSOjUmXrMHnKwZdA8wcEefY7UVqBKYGjpdQY=
 github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311/go.mod h1:b583jCggY9gE99b6G5LEC39OIiVsWj+R97kbl5odCEk=
 github.com/cloudwego/base64x v0.1.4/go.mod h1:0zlkT4Wn5C6NdauXdJRhSKRlJvmclQ1hhJgA0rcu/8w=
