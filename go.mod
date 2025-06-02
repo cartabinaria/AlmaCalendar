@@ -9,7 +9,7 @@ require (
 	github.com/cartabinaria/unibo-go v0.3.3
 	github.com/gin-contrib/multitemplate v1.1.1
 	github.com/gin-contrib/size v1.0.2
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/assert/v2 v2.2.0
 	github.com/lf4096/gin-compress v0.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
