@@ -1,33 +1,39 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
+env:
+  NODE_VERSION: "20"
+  GO_VERSION: "1.24"
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - uses: actions/setup-go@v4
-      with:
-        go-version: '1.23'
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
 
-    - run: pnpm install
-    - run: pnpm run css:build
-    - run: go build -v ./...
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "${{ env.NODE_VERSION }}"
+          cache: "pnpm"
 
-    - name: Test
-      run: go test -v ./...
+      - name: Setup Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: "${{ env.GO_VERSION }}"
+
+      - run: pnpm install
+      - run: pnpm run css:build
+
+      - run: go build -v ./...
+
+      - run: go test -v ./...
