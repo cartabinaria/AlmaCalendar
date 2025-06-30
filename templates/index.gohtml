@@ -2,60 +2,82 @@
 {{ define "title" }}Corsi{{ end }}
 
 {{ define "body" }}
-    <h1 class="text-4xl font-bold mb-8">UniboCalendar</h1>
-
-    <label for="filter" class="mr-2 text-1xl">Filtra i corsi:</label>
-    <input type="text" id="filter" class="input input-bordered h-auto w-auto py-2 text-1xl mb-2" placeholder="Inserisci filtro">
-
-    <table class="table">
+<div class="flex flex-col items-center min-h-screen bg-[#fff] dark:bg-[#222] py-8 px-2">
+  <div class="w-full max-w-3xl bg-[#fff] dark:bg-[#222] rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700">
+    <div class="flex items-center gap-3 mb-8">
+      <span class="icon-[mdi--calendar-month-outline] text-[#b5142a] dark:text-[#e6bfc3] text-4xl"></span>
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white">AlmaCalendar</h1>
+    </div>
+    <div class="flex flex-col md:flex-row md:items-center gap-2 mb-6 w-full">
+      <label for="filter" class="mr-2 text-lg font-medium text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+        <span class="icon-[mdi--filter-variant] text-xl text-[#b5142a] dark:text-[#e6bfc3]"></span>
+        Filtra i corsi:
+      </label>
+      <div class="relative w-full md:w-auto">
+        <span class="icon-[mdi--magnify] absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 text-xl"></span>
+        <input
+          type="text"
+          id="filter"
+          class="block w-full md:w-72 pl-10 pr-3 py-2 text-lg rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#b5142a]/20 dark:focus:ring-[#b5142a]/30 focus:border-[#b5142a] dark:focus:border-[#e6bfc3] transition bg-[#f6f6f6] dark:bg-[#2d2326] text-[#222] dark:text-[#fff]"
+          placeholder="Inserisci filtro"
+        >
+      </div>
+    </div>
+    <div class="overflow-x-auto rounded-xl">
+      <table class="min-w-full rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 bg-[#fff] dark:bg-[#222]">
         <thead>
-        <tr>
-            <th>A.A.</th>
-            <th>Descrizione</th>
-            <th>Campus</th>
-        </tr>
+          <tr class="bg-[#f6f6f6] dark:bg-[#2d2326] text-neutral-700 dark:text-neutral-200">
+            <th class="py-3 px-4 text-left font-semibold">A.A.</th>
+            <th class="py-3 px-4 text-left font-semibold">Descrizione</th>
+            <th class="py-3 px-4 text-left font-semibold">Campus</th>
+          </tr>
         </thead>
+        <tbody>
         {{ range .courses }}
-            {{ $course := .}}
-            <tr>
-                <td>{{.AnnoAccademico}}</td>
-                <td>
-                    <a class="link" href="/courses/{{$course.Codice}}" data-course="{{.Tipologia}} in {{ printf "%.100s" .Descrizione }}">
-                        {{.Tipologia}} in {{ printf "%.100s" .Descrizione }}
-                    </a>
-                </td>
-                <td>{{.Campus}}</td>
-            </tr>
+          {{ $course := .}}
+          <tr class="hover:bg-[#fbe6ea] dark:hover:bg-[#3a0a13]/60 transition-colors even:bg-[#f6f6f6] dark:even:bg-[#232323]">
+            <td class="py-2 px-4 font-mono text-neutral-800 dark:text-neutral-200">{{.AnnoAccademico}}</td>
+            <td class="py-2 px-4">
+              <a class="text-[#b5142a] dark:text-[#e6bfc3] font-medium hover:underline flex items-center gap-1" href="/courses/{{$course.Codice}}" data-course="{{.Tipologia}} in {{ printf "%.100s" .Descrizione }}">
+                <span class="icon-[mdi--book-education-outline] text-[#b5142a]/70 dark:text-[#e6bfc3]/70"></span>
+                {{.Tipologia}} in {{ printf "%.100s" .Descrizione }}
+              </a>
+            </td>
+            <td class="py-2 px-4 text-neutral-700 dark:text-neutral-300">{{.Campus}}</td>
+          </tr>
         {{ end }}
-    </table>
-
+        </tbody>
+      </table>
+    </div>
     <style id="cssFilter"></style>
-    <script>
-        const filter = document.getElementById("filter");
-        const cssFilter = document.getElementById("cssFilter");
+  </div>
+</div>
+<script>
+    const filter = document.getElementById("filter");
+    const cssFilter = document.getElementById("cssFilter");
 
-        // Given the filter to apply, updates the css of #cssFilter to hide the necessary rows of the table
-        function filterCourses(filter) {
-            // Add an attribute selector of the form [data-course*="word" i] for every (non-empty) word in filter
-            let filters = filter.trim().split(/\s+/).filter((s) => s).reduce(
-                (acc, f) => acc + '[data-course*="' + f + '" i]',
-                ""
-            );
+    // Given the filter to apply, updates the css of #cssFilter to hide the necessary rows of the table
+    function filterCourses(filterValue) {
+        // Add an attribute selector of the form [data-course*="word" i] for every (non-empty) word in filter
+        let filters = filterValue.trim().split(/\s+/).filter((s) => s).reduce(
+            (acc, f) => acc + '[data-course*="' + f + '" i]',
+            ""
+        );
 
-            if (filters) {
-                // For example, the generated css for "laurea informatica" is:
-                // tr:has(a:not([data-course*="laurea" i][data-course*="informatica" i])) {
-                //     display: none;
-                // }
-                cssFilter.innerHTML = "tr:has(a:not(" + filters + ")){display: none;}";
-            } else {
-                cssFilter.innerHTML = "";
-            }
+        if (filters) {
+            // For example, the generated css for "laurea informatica" is:
+            // tr:has(a:not([data-course*="laurea" i][data-course*="informatica" i])) {
+            //     display: none;
+            // }
+            cssFilter.innerHTML = "tr:has(a:not(" + filters + ")){display: none;}";
+        } else {
+            cssFilter.innerHTML = "";
         }
+    }
 
-        if (filter.value) { // Don't run when the filter is empty
-            filterCourses(filter.value);
-        }
-        filter.addEventListener("input", (event) => filterCourses(filter.value));
-    </script>
+    if (filter.value) { // Don't run when the filter is empty
+        filterCourses(filter.value);
+    }
+    filter.addEventListener("input", (event) => filterCourses(filter.value));
+</script>
 {{ end }}

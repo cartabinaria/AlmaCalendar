@@ -1,313 +1,184 @@
 {{ template "base" . }}
-{{ define "title" }}Corso | {{.course.Description}}{{ end }}
+{{ define "title" }}{{.Course.Descrizione}}| Corsi | AlmaCalendar{{ end }}
+
+{{ define "yearCurriculumBlock" }}
+  <div class="mb-8 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 md:p-6">
+    <h3 class="text-lg md:text-xl font-bold flex items-center gap-2 mb-2 text-neutral-900 dark:text-neutral-50">
+      <span class="icon-[mdi--calendar-month-outline] text-unibo dark:text-[#e6bfc3]"></span>
+      Calendario {{.anno}} anno
+    </h3>
+    <!-- Lezioni Section -->
+    <div class="mb-4 cal">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="icon-[mdi--book-open-variant] text-unibo dark:text-[#e6bfc3]"></span>
+        <h4 class="text-base md:text-lg font-semibold text-neutral-800 dark:text-neutral-100">Lezioni</h4>
+        <p class="text-xs l{{.anno}}_{{.curriculum.Value}}_text text-neutral-500 dark:text-neutral-400"></p>
+      </div>
+      <div class="flex flex-col md:flex-row md:items-center gap-3">
+        <!-- Filter Dropdown -->
+        {{ if gt (len .ycTeachings) 1 }}
+        <div class="dropdown">
+          <label tabindex="0" class="btn btn-sm md:btn-md border border-[#b5142a] dark:border-[#e6bfc3] bg-white dark:bg-[#231f20] hover:bg-[#f6e6e9] dark:hover:bg-[#3a0a13] transition text-unibo dark:text-[#e6bfc3] font-semibold shadow-none" role="button">
+            <span class="icon-[mdi--filter-variant] mr-2"></span>
+            Filtra insegnamenti
+          </label>
+          <ul tabindex="0" class="dropdown-content menu bg-white dark:bg-[#231f20] rounded-box z-10 p-2 border border-[#b5142a] dark:border-[#e6bfc3] mt-1">
+            {{ range $teaching := .ycTeachings }}
+            <li>
+              <label class="flex items-center gap-2 cursor-pointer py-1 px-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded">
+                <input id="checkbox" type="checkbox" class="checkbox checkbox-sm accent-blue-500"
+                  anno="{{$.anno}}" curriculum="{{$.curriculum.Value}}" option="{{$teaching.Code}}" mode="l" innerText="{{$teaching.Name}}" />
+                <span class="text-sm text-neutral-800 dark:text-neutral-100">{{ $teaching.Name }}</span>
+              </label>
+            </li>
+            {{ end }}
+          </ul>
+        </div>
+        {{ end }}
+        <!-- Calendar Link -->
+        <pre class="hidden font-mono text-xs md:text-base h-auto w-auto py-2 px-3 rounded border border-[#b5142a] dark:border-[#e6bfc3] bg-[#fff] dark:bg-[#231f20] text-[#222] dark:text-[#fff] leading-loose l{{.anno}}_{{.curriculum.Value}}"
+          id="l{{.anno}}_{{.curriculum.Value}}"
+          title="Link del calendario in formato WebCal"
+          tabindex="0">/cal/{{.course.Codice}}/{{.anno}}{{if .curriculum.Value}}?curr={{.curriculum.Value}}{{end}}</pre>
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button class="btn btn-sm md:btn-md flex items-center gap-1 border border-[#b5142a] dark:border-[#e6bfc3] bg-white dark:bg-[#231f20] text-unibo dark:text-[#e6bfc3]" title="Copia">
+            <span>Copia</span>
+            <span class="icon-[heroicons--document-duplicate-solid] text-lg"></span>
+          </button>
+          <a class="btn btn-sm md:btn-md open l{{.anno}}_{{.curriculum.Value}} bg-[#b5142a] dark:bg-[#e6bfc3] text-white dark:text-[#231f20] border-none" style="border:none;">Apri online</a>
+          <a class="btn btn-sm md:btn-md bg-white dark:bg-[#231f20] flex items-center gap-1 google l{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[#e6bfc3] text-unibo dark:text-[#e6bfc3] font-semibold" tabindex="0" role="button">
+            <span>Google</span>
+            <span class="icon-[logos--google-calendar] text-lg"></span>
+          </a>
+          <a class="btn btn-sm md:btn-md bg-white dark:bg-[#231f20] flex items-center gap-1 apple l{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[#e6bfc3] text-unibo dark:text-[#e6bfc3] font-semibold" tabindex="0" role="button">
+            <span>Apple</span>
+            <span class="icon-[logos--apple] text-lg"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Esami Section -->
+    <div class="cal">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="icon-[mdi--clipboard-text-outline] text-unibo dark:text-[#e6bfc3]"></span>
+        <h4 class="text-base md:text-lg font-semibold text-neutral-800 dark:text-neutral-100">Esami</h4>
+        <div class="dropdown dropdown-right dropdown-end dropdown-hover">
+          <div tabindex="0" class="cursor-pointer">
+            <span class="icon-[heroicons--exclamation-triangle] text-xl" style="color:#b5142a" dark:style="color:#e6bfc3"></span>
+          </div>
+          <div tabindex="0" class="dropdown-content menu bg-neutral-50 dark:bg-neutral-900 rounded-box z-10 w-64 p-2 text-neutral-800 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700">
+            <div class="text-lg font-bold mb-1 text-unibo dark:text-[#e6bfc3]">Disclaimer:</div>
+            <div class="text-sm">Non tutti gli esami saranno visibili. La disponibilità dipende dal caricamento su AlmaEsami da parte dei docenti.</div>
+          </div>
+        </div>
+        <p class="text-xs e{{.anno}}_{{.curriculum.Value}}_text text-neutral-500 dark:text-neutral-400"></p>
+      </div>
+      <div class="flex flex-col md:flex-row md:items-center gap-3">
+        <!-- Filter Dropdown -->
+        {{ if gt (len .ycTeachings) 1 }}
+        <div class="dropdown">
+          <label tabindex="0" class="btn btn-sm md:btn-md border border-[#b5142a] dark:border-[#e6bfc3] bg-white dark:bg-[#231f20] hover:bg-[#f6e6e9] dark:hover:bg-[#3a0a13] transition text-unibo dark:text-[#e6bfc3] font-semibold shadow-none" role="button">
+            <span class="icon-[mdi--filter-variant] mr-2"></span>
+            Filtra insegnamenti
+          </label>
+          <ul tabindex="0" class="dropdown-content menu bg-white dark:bg-[#231f20] rounded-box z-10 p-2 border border-[#b5142a] dark:border-[#e6bfc3] mt-1">
+            {{ range $teaching := .ycTeachings }}
+            <li>
+              <label class="flex items-center gap-2 cursor-pointer py-1 px-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded">
+                <input id="checkbox" type="checkbox" class="checkbox checkbox-sm accent-blue-500"
+                  anno="{{$.anno}}" curriculum="{{$.curriculum.Value}}" option="{{$teaching.Code}}" mode="e" innerText="{{$teaching.Name}}" />
+                <span class="text-sm text-neutral-800 dark:text-neutral-100">{{ $teaching.Name }}</span>
+              </label>
+            </li>
+            {{ end }}
+          </ul>
+        </div>
+        {{ end }}
+        <!-- Exam Calendar Link -->
+        <pre class="hidden font-mono text-xs md:text-base h-auto w-auto py-2 px-3 rounded border border-[#b5142a] dark:border-[#e6bfc3] bg-[#fff] dark:bg-[#231f20] text-[#222] dark:text-[#fff] leading-loose e{{.anno}}_{{.curriculum.Value}}"
+          id="e{{.anno}}_{{.curriculum.Value}}"
+          title="Link del calendario in formato WebCal"
+          tabindex="0">/exams/{{.course.Codice}}/{{.anno}}{{if .curriculum.Value}}?curr={{.curriculum.Value}}{{end}}</pre>
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button class="btn btn-sm md:btn-md flex items-center gap-1 border border-[#b5142a] dark:border-[#e6bfc3] bg-white dark:bg-[#231f20] text-unibo dark:text-[#e6bfc3]" title="Copia">
+            <span>Copia</span>
+            <span class="icon-[heroicons--document-duplicate-solid] text-lg"></span>
+          </button>
+          <a class="btn btn-sm md:btn-md open e{{.anno}}_{{.curriculum.Value}} bg-[#b5142a] dark:bg-[#e6bfc3] text-white dark:text-[#231f20] border-none" style="border:none;">Apri online</a>
+          <a class="btn btn-sm md:btn-md bg-white dark:bg-[#231f20] flex items-center gap-1 google e{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[#e6bfc3] text-unibo dark:text-[#e6bfc3]">
+            <span>Google</span>
+            <span class="icon-[logos--google-calendar] text-lg"></span>
+          </a>
+          <a class="btn btn-sm md:btn-md bg-white dark:bg-[#231f20] flex items-center gap-1 apple e{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[#e6bfc3] text-unibo dark:text-[#e6bfc3]">
+            <span>Apple</span>
+            <span class="icon-[logos--apple] text-lg"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{{ end }}
 
 {{ define "body" }}
-
-    {{$course := .Course}}
-    {{$curricula := .Curricula}}
-    {{$teachings := .Teachings}}
-
-    <div class="flex gap-4 items-center">
-      <a class="btn btn-ghost md:btn-lg" href="/">
-        <span class="icon-[heroicons--arrow-left-solid] text-2xl text-bold"></span>
+{{$course := .Course}}
+{{$curricula := .Curricula}}
+{{$teachings := .Teachings}}
+<div class="flex flex-col items-center min-h-screen bg-[#fff] dark:bg-[#222] py-8 px-2">
+  <div class="w-full max-w-4xl bg-[#fff] dark:bg-[#222] rounded-2xl p-6 md:p-10 border border-neutral-200 dark:border-neutral-700">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+      <a class="btn btn-circle btn-ghost border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" href="/" title="Torna ai corsi">
+        <span class="icon-[heroicons--arrow-left-solid] text-2xl" style="color:#b5142a"></span>
       </a>
       <div>
-        <p class="md:text-xl">{{.Course.Tipologia}} in</p>
-        <h1 class="text-xl md:text-4xl font-bold">{{.Course.Descrizione}}</h1>
-        <a class="link link-info" href="{{.Course.Url}} "> Link al sito del corso </a>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="icon-[mdi--school-outline] text-unibo dark:text-[#e6bfc3] text-2xl"></span>
+          <span class="text-lg md:text-xl font-semibold text-neutral-800 dark:text-neutral-100">{{$course.Tipologia}} in</span>
+        </div>
+        <h1 class="text-2xl md:text-4xl font-extrabold mb-1 text-neutral-900 dark:text-neutral-50">{{$course.Descrizione}}</h1>
+        <a class="inline-flex items-center gap-1 text-unibo dark:text-[#e6bfc3] hover:underline text-sm md:text-base" href="{{$course.Url}}" target="_blank" rel="noopener">
+          <span class="icon-[mdi--link-variant]"></span>
+          Link al sito del corso
+        </a>
       </div>
     </div>
 
-
-
-    {{range $anno := anniRange .Course.DurataAnni}}
+    {{$firstYear := index (anniRange $course.DurataAnni) 0}}
+    {{$firstYearCurricula := index $curricula $firstYear}}
+    {{if gt (len $firstYearCurricula) 1}}
+      {{/* MULTIPLE CURRICULA: split by curriculum, then by year */}}
+      {{range $curriculum := $firstYearCurricula}}
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-unibo dark:text-[#e6bfc3]">
+            <span class="icon-[mdi--account-school-outline]"></span>
+            {{$curriculum.Label}}
+          </h2>
+          {{range $anno := anniRange $course.DurataAnni}}
+            {{$yTeachings := index $teachings $anno}}
+            {{$ycTeachings := index $yTeachings $curriculum}}
+            {{if $ycTeachings}}
+              {{template "yearCurriculumBlock" (dict "anno" $anno "curriculum" $curriculum "ycTeachings" $ycTeachings "course" $course)}}
+            {{end}}
+          {{end}}
+        </div>
+      {{end}}
+    {{else}}
+      {{/* SINGLE CURRICULUM: split by year as before */}}
+      {{range $anno := anniRange $course.DurataAnni}}
         {{$yCurricula := index $curricula $anno}}
         {{$yTeachings := index $teachings $anno}}
-        <div class="mt-8">
-            {{range $curriculum := $yCurricula }}
-            {{ $ycTeachings := index $yTeachings $curriculum }}
-                <div class="mt-4">
-                    <h2 class="text-md md:text-3xl">
-                        Calendario {{$anno}} anno {{if gt (len $yCurricula) 1}}({{$curriculum.Label}}){{end}}
-                    </h2>
-
-                    <div class="flex items-center mt-1 gap-4">
-                      <h4 class="text-sm md:text-md font-semibold">
-                          Lezioni
-                      </h4>
-                      <p class="l{{ $anno }}_{{ $curriculum.Value }}_text">
-                      </p>
-                    </div>
-                    <div class="mt-2 cal flex gap-4 items-center">
-                        <!-- Filter -->
-                        {{ if gt (len $ycTeachings) 1 }}
-                        <details class="dropdown">
-                          <summary tabindex="0" role="button" class="btn m-1"> Filter </summary>
-                          <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[1] p-2 shadow">
-                          {{ range $teaching := $ycTeachings }}
-                            <li>
-                              <div class="form-control">
-                                <label class="label cursor-pointer w-64 md:w-96 lg:w-[40rem] xl:w-full">
-                                  <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
-                                    curriculum={{ $curriculum.Value }}
-                                    option={{ $teaching.Code }}
-                                    mode="l"
-                                    innerText={{ $teaching.Name }}
-                                  />
-                                  <span class="label-text text-wrap w-full">{{ $teaching.Name }}</span>
-                                </label>
-                              </div>      
-                            </li>
-                          {{ end }}
-                          </ul>
-                        </details>
-                        {{ end }}
-                        <!-- End filter -->
-                        <pre class="hidden input input-bordered font-mono h-auto w-auto py-2 leading-loose l{{ $anno }}_{{ $curriculum.Value }}" 
-                             id="l{{ $anno }}_{{ $curriculum.Value }}"
-                             title="Link del calendario in formato WebCal"
-                             tabindex="0">/cal/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
-                        <!-- Buttons -->
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 w-full max-w-3xl">
-                          <button class="btn btn-md btn-accent join-item" title="Copia">
-                              <span>COPY</span>
-                              <span class="icon-[heroicons--document-duplicate-solid] text-xl"></span>
-                          </button>
-                          <a class="btn btn-accent join-item open l{{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
-                          <div class="md:join col-span-2 w-full flex flex-col md:flex-row gap-2 md:gap-0">
-                              <a class="btn btn-info bg-white join-item flex md:w-1/2 lg:w-3/5 google l{{ $anno }}_{{ $curriculum.Value }}">
-                                <div>
-                                  Google Calendar 
-                                </div>
-                                <span class="icon-[logos--google-calendar] text-xl"></span>
-                              </a>
-                              <a class="btn btn-info bg-white join-item md:w-1/2 lg:w-3/5 apple flex l{{ $anno }}_{{ $curriculum.Value }}">
-                                <div>
-                                  Apple Calendar 
-                                </div>
-                                <span class="icon-[logos--apple] text-xl"></span>
-                              </a>
-                          </div>
-                        </div>
-                        <!-- End buttons -->
-                    </div>
-
-                    <div class="flex items-center mt-1">
-                      <h4 class="text-sm md:text-md font-semibold ">
-                          Esami
-                      </h4>
-
-                      <div class="dropdown dropdown-right dropdown-end dropdown-hover">
-                      <div tabindex="0" role="button" class="btn m-1 btn-xs btn-warning btn-circle">
-                        <span class="icon-[heroicons--exclaimation-triangle] text-xl"></span>
-                      </div>
-                        <div tabindex="0" class="dropdown-content menu bg-warning rounded-box z-1 w-64 p-2 shadow-sm text-black">
-                          <div class="text-lg font-bold">Disclaimer:</div> Not all exams will be visible. Availability depends on whether professors have uploaded them to AlmaEsami.
-                        </div>
-                      </div>
-                      <p class="e{{ $anno }}_{{ $curriculum.Value }}_text">
-                      </p>
-                    </div>
-                    <div class="mt-2 cal flex gap-4 items-center">
-                        <!-- Filter -->
-                        {{ if gt (len $ycTeachings) 1 }}
-                        <details class="dropdown">
-                          <summary tabindex="0" role="button" class="btn m-1"> Filter </summary>
-                          <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[1] p-2 shadow">
-                          {{ range $teaching := $ycTeachings }}
-                            <li>
-                              <div class="form-control">
-                                <label class="label cursor-pointer w-64 md:w-96 lg:w-[40rem] xl:w-full">
-                                  <input id="checkbox" type="checkbox" class="checkbox checkbox-sm mr-5" anno="{{ $anno }}"
-                                    curriculum={{ $curriculum.Value }}
-                                    option={{ $teaching.Code }}
-                                    mode="e"
-                                    innerText={{ $teaching.Name }}
-                                  />
-                                  <span class="label-text text-wrap w-full">{{ $teaching.Name }}</span>
-                                </label>
-                              </div>      
-                            </li>
-                          {{ end }}
-                          </ul>
-                        </details>
-                        {{ end }}
-                        <!-- End filter -->
-                        <pre class="hidden input input-bordered font-mono h-auto w-auto py-2 leading-loose e{{ $anno }}_{{ $curriculum.Value }}" 
-                             id="e{{ $anno }}_{{ $curriculum.Value }}"
-                             title="Link del calendario in formato WebCal"
-                             tabindex="0">/exams/{{$course.Codice}}/{{$anno}}{{if gt (len $yCurricula) 1}}?curr={{$curriculum.Value}}{{end}}</pre>
-                        <!-- Buttons -->
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 w-full max-w-3xl">
-                            <button class="btn btn-accent join-item" title="Copia">
-                                <span>COPY</span>
-                                <span class="icon-[heroicons--document-duplicate-solid] text-xl"></span>
-                            </button>
-                            <a class="btn btn-accent join-item open e{{ $anno }}_{{ $curriculum.Value }}">Apri online</a>
-                            <div class="md:join col-span-2 w-full flex flex-col md:flex-row gap-2 md:gap-0">
-                                <a class="btn btn-info bg-white join-item flex md:w-1/2 lg:w-3/5 google e{{ $anno }}_{{ $curriculum.Value }}">
-                                    <div>
-                                      Google Calendar 
-                                    </div>
-                                    <span class="icon-[logos--google-calendar] text-xl"></span>
-                                </a>
-                                <a class="btn btn-info bg-white join-item flex md:w-1/2 lg:w-3/5 apple e{{ $anno }}_{{ $curriculum.Value }}">
-                                    <div>
-                                      Apple Calendar
-                                    </div>
-                                    <span class="icon-[logos--apple] text-xl"></span>
-                                </a>
-                            </div>
-                        </div>
-                        <!-- End buttons -->
-                    </div>
-                </div>
+        <div class="mb-10">
+          {{range $curriculum := $yCurricula}}
+            {{$ycTeachings := index $yTeachings $curriculum}}
+            {{if $ycTeachings}}
+              {{template "yearCurriculumBlock" (dict "anno" $anno "curriculum" $curriculum "ycTeachings" $ycTeachings "course" $course)}}
             {{end}}
+          {{end}}
         </div>
+      {{end}}
     {{end}}
-
-    <script>
-        const elements = document.getElementsByClassName("cal");
-        const url = new URL(document.baseURI);
-
-        const openPrefix = "https://simonrob.github.io/online-ics-feed-viewer/#";
-        const googlePrefix = "https://www.google.com/calendar/render?cid=";
-        const applePrefix = "";
-
-        for (const el of elements) {
-            const pre = el.getElementsByTagName("pre")[0]
-            const calPath = pre.textContent;
-
-
-            const webcalLink = `webcal://${url.host}${calPath}`
-
-            pre.textContent = webcalLink;
-            // Select all text on click
-            pre.addEventListener("click", () => {
-                const range = document.createRange();
-                range.selectNodeContents(pre);
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range); });
-
-            const btnCopyUrl = el.getElementsByTagName("button")[0]
-            btnCopyUrl.addEventListener("click", () => {
-                navigator.clipboard.writeText(pre.textContent);
-            });
-
-
-            const aOpen = el.getElementsByClassName("open")[0]
-            aOpen.href = openPrefix + new URLSearchParams({
-                feed: `${url.origin}${calPath}`,
-                cors: false,
-                title: "Lezioni",
-                hideinput: true
-            })
-
-            const addToGoogleBtn = el.getElementsByClassName("google")[0]
-            addToGoogleBtn.href = googlePrefix + encodeURIComponent(webcalLink)
-
-            const addToAppleBtn = el.getElementsByClassName("apple")[0]
-            addToAppleBtn.href = webcalLink
-        }
-
-        // Utility functions to work with URL params;
-        // Given an url string it returns the subject added
-        function addSubject(url, subject) {
-          if (url.includes("subjects")) {
-            url = url.replace(",,", ",")
-            url = url.replace("=,", "=")
-            
-            let last_char = url.slice(-1)
-            if (last_char != "," && last_char != "=") {
-              url = url + ","
-            }
-            return url + subject
-          } else {
-            if (url.includes("?")) {
-              return url + "&subjects=" + subject
-            } else {
-              return url + "?subjects=" + subject
-            }
-          }
-        }
-
-        // Given an url string it returns the subject removed from the string
-        function removeSubject(url, subject) {
-          url = url.replace(subject, "")
-          url = url.replace(",,", ",")
-          url = url.replace("=,", "=")
-          return url
-        }
-
-        const checkboxes = document.getElementsByClassName("checkbox")
-        for (const ck of checkboxes) {
-          ck.checked = false
-
-          let a = ck.getAttribute("anno")
-          let c = ck.getAttribute("curriculum")
-          let o = ck.getAttribute("option")
-          let m = ck.getAttribute("mode")
-
-          if (!c) {
-            c = ""
-          } 
-
-          ck.addEventListener("click", (event) => {
-            let class_name = `${m}${a}_${c}`
-
-            els = document.getElementsByClassName(class_name)
-            // We need to get a cleare string of the calendar URL.
-            plain_string = document.getElementById(class_name).textContent
-
-            for (const el of els) {
-              let res
-
-              if (ck.checked) {
-                console.log(`Adding ${o} to: ${class_name}`);
-                res = addSubject(plain_string, o);
-              } else {
-                console.log(`Removing ${o} to: ${class_name}`)
-                res = removeSubject(plain_string, o)
-              }
-
-              // Check if element is tye <a href="..."/>
-              if (el.nodeName != "A") {
-                el.textContent = res
-              } else {
-                if (el.classList.contains("open")) {
-                  el.href = openPrefix + new URLSearchParams({
-                      feed: res.replace("webcal://", "https://"),
-                      cors: false,
-                      title: "Lezioni",
-                      hideinput: true
-                  })
-                } else if (el.classList.contains("google")) {
-                  el.href = googlePrefix + encodeURIComponent(res)
-                } else if (el.classList.contains("apple")) {
-                  el.href = res
-                }
-              }
-            }
-
-            let pclass_name = `${m}${a}_${c}_text`;
-            let el = document.getElementsByClassName(pclass_name)[0];
-
-            let text = el.innerText;
-            let value = ck.getAttribute("innerText");
-            console.log(text)
-            if (ck.checked) {
-              text = text + ` - ${value}`
-            } else {
-              text = text.replace(`- ${value}`, "")
-            }
-            console.log(text)
-
-            el.innerText = text
-          })
-        }
-
-    </script>
+  </div>
+</div>
 {{ end }}
-
-

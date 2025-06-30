@@ -25,18 +25,35 @@ import (
 	"github.com/VaiTon/unibocalendar/unibo_integ"
 )
 
+//go:generate pnpm install
 //go:generate pnpm run css:build
 
 const templateDir = "./templates"
 
 func createMyRender() multitemplate.Renderer {
-	funcMap := template.FuncMap{"anniRange": func(end int) []int {
-		r := make([]int, 0, end)
-		for i := 1; i <= end; i++ {
-			r = append(r, i)
-		}
-		return r
-	}}
+	funcMap := template.FuncMap{
+		"anniRange": func(end int) []int {
+			r := make([]int, 0, end)
+			for i := 1; i <= end; i++ {
+				r = append(r, i)
+			}
+			return r
+		},
+		"dict": func(values ...interface{}) map[string]interface{} {
+			if len(values)%2 != 0 {
+				panic("invalid dict call: odd number of arguments")
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					panic("dict keys must be strings")
+				}
+				dict[key] = values[i+1]
+			}
+			return dict
+		},
+	}
 
 	r := multitemplate.NewRenderer()
 
