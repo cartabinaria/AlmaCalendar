@@ -1,4 +1,8 @@
-FROM node:current-alpine as nodebuild
+ARG NODE_VERSION=24
+ARG ALPINE_VERSION=3.22
+ARG GO_VERSION=1.24
+
+FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} as nodebuild
 WORKDIR /app
 
 RUN corepack enable
@@ -9,14 +13,14 @@ RUN pnpm install --frozen-lockfile
 COPY templates ./templates
 RUN pnpm run css:build
 
-FROM golang:alpine as gobuild
+FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} as gobuild
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o unibocalendar
+RUN go build -o unibocalendar -v
 
 FROM alpine
 WORKDIR /app
@@ -35,7 +39,3 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.description="Calendario per i corsi Unibo V2"
 
 CMD ["./unibocalendar"]
-
-
-
-
