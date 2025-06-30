@@ -7,19 +7,19 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cartabinaria/unibo-go/opendata"
+	"github.com/cartabinaria/unibo-go/ckan"
 )
 
-func DownloadResource(resource *opendata.Resource) ([]Course, error) {
+func DownloadResource(resource *ckan.Resource) ([]Course, error) {
 	// Get the resource
-	res, err := Client.Get(resource.Url)
+	res, err := httpClient.Get(resource.URL)
 	if err != nil {
 		return nil, err
 	}
 
 	// Parse the body
 	var courses []Course
-	if strings.HasSuffix(resource.Url, ".csv") {
+	if strings.HasSuffix(resource.URL, ".csv") {
 		courses, err = downloadCSV(res.Body)
 	}
 	if err != nil {

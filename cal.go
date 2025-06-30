@@ -34,7 +34,7 @@ func createCourseCal(
 
 	for _, event := range timetable {
 		sha := sha1.New()
-		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s", event.CodModulo, event.Start, event.End)))
+		_, err := fmt.Fprintf(sha, "%s%s%s", event.CodModulo, event.Start, event.End)
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +79,7 @@ func createExamsCal(exams []exams.Exam, title, description string) (*ics.Calenda
 
 	for _, exam := range exams {
 		sha := sha1.New()
-		_, err := sha.Write([]byte(fmt.Sprintf("%s%s%s%s", exam.SubjectName, exam.Date, exam.Location, exam.Teacher)))
+		_, err := fmt.Fprintf(sha, "%s%s%s%s", exam.SubjectName, exam.Date, exam.Location, exam.Teacher)
 		if err != nil {
 			return nil, err
 		}

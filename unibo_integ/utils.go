@@ -13,10 +13,6 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return t.RoundTripper.RoundTrip(req)
 }
 
-// Client is the http client used to make requests.
+// httpClient is the http httpClient used to make requests.
 // It is used to set a custom User-Agent.
-var Client = http.Client{
-	Transport: &transport{
-		http.DefaultTransport,
-	},
-}
+var httpClient = http.Client{Transport: &transport{http.DefaultTransport}}

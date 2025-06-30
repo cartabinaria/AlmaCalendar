@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cartabinaria/unibo-go/opendata"
+	"github.com/cartabinaria/unibo-go/ckan"
 
 	"github.com/rs/zerolog/log"
 
@@ -19,32 +19,35 @@ const (
 	coursesPathJson = "data/courses.json"
 	packageId       = "degree-programmes"
 	resourceAlias   = "corsi_latest_it"
+	openDataUrl     = "https://dati.unibo.it"
 )
 
 func downloadOpenDataIfNewer() {
 
+	client := ckan.NewClient(openDataUrl)
+
 	// Get package
-	pack, err := opendata.FetchPackage(packageId)
+	pack, err := client.GetPackage(packageId)
 	if err != nil {
 		log.Warn().Err(err).Msg("unable to get package")
 		return
 	}
 
 	// If no resources, return nil
-	if len(pack.Result.Resources) == 0 {
+	if len(pack.Resources) == 0 {
 		log.Warn().Msg("no resources found while downloading open data")
 		return
 	}
 
 	// Get wanted resource
-	resource, found := pack.Result.Resources.GetByAlias(resourceAlias)
+	resource, found := ckan.GetByAlias(pack.Resources, resourceAlias)
 	if !found {
 		log.Warn().Msgf("unable to find resource '%s'", resourceAlias)
 		return
 	}
 
 	// Get last modified resource
-	lastMod := resource.LastMod
+	lastMod := resource.LastModified
 
 	// Parse last modified time
 	lastModTime, err := time.Parse("2006-01-02T15:04:05.999999999", lastMod)

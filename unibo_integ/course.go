@@ -68,7 +68,7 @@ var reg = regexp.MustCompile(`<a .* href="https://corsi\.unibo\.it/(.+?)"`)
 
 func (c Course) scrapeCourseWebsiteId() (CourseId, error) {
 
-	resp, err := Client.Get(c.Url)
+	resp, err := httpClient.Get(c.Url)
 	if err != nil {
 		return CourseId{}, fmt.Errorf("unable to get course website: %w", err)
 	}
