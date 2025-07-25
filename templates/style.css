@@ -3,6 +3,38 @@
 @plugin "daisyui";
 @plugin "@iconify/tailwind4";
 
+@plugin "daisyui/theme" {
+	name: 'dark';
+	prefersdark: true;
+
+	--color-primary: '#EA8C55';
+	--color-secondary: '#971327';
+	--color-accent: '#4281A4';
+	--color-base-100: '#02111B';
+	--color-base-200: '#0f1f2a';
+    --color-base-300: '#1a2b3c';
+	--color-content: '#F1FAEE';
+	--color-neutral: '#06253A';
+
+    --depth: 0;
+}
+
+@plugin "daisyui/theme" {
+	name: 'light';
+	default: true;
+
+	--color-secondary: '#971327';
+	--color-primary: '#EA8C55';
+	--color-accent: '#4281A4';
+	--color-content: '#02111B';
+	--color-base-100: '#F1FAEE';
+    --color-base-200: '#DBE3D8';
+    --color-base-300: '#C8D5B9';
+	--color-neutral: '#DBE3D8';
+
+    --depth: 0;
+}
+
 @theme {
     --color-unibo: #b5142a;
     --color-unibo-light: #e6bfc3;

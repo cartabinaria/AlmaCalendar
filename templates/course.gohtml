@@ -2,61 +2,62 @@
 {{ define "title" }}{{.Course.Descrizione}}| Corsi | AlmaCalendar{{ end }}
 
 {{ define "yearCurriculumBlock" }}
-  <div class="mb-8 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 md:p-6">
-    <h3 class="text-lg md:text-xl font-bold flex items-center gap-2 mb-2 text-neutral-900 dark:text-neutral-50">
-      <span class="icon-[mdi--calendar-month-outline] text-unibo dark:text-[#e6bfc3]"></span>
+  <div class="mb-8 card bg-base-300 rounded-xl p-4 md:p-6">
+    <h3 class="text-lg md:text-xl font-bold flex items-center gap-2 mb-2">
+      <span class="icon-[mdi--calendar-month-outline]"></span>
       Calendario {{.anno}} anno
     </h3>
     <!-- Filter Dropdown and Selected Insegnamenti Text -->
     <div class="mb-4">
-      <div class="dropdown inline-block">
-        <label tabindex="0" class="btn btn-sm md:btn-md border border-[#b5142a] dark:border-[var(--color-unibo-light)] bg-white dark:bg-white hover:bg-[#f6e6e9] dark:hover:bg-[#f6e6e9] transition text-unibo font-semibold shadow-none" role="button" style="--tw-border-opacity:1;">
+      <div class="dropdown w-full">
+        <label tabindex="0" class="btn btn-sm btn-outline w-full md:btn-md border transition font-semibold shadow-none" role="button">
           <span class="icon-[mdi--filter-variant] mr-2"></span>
           Filtra insegnamenti
         </label>
-        <ul tabindex="0" class="dropdown-content menu bg-white dark:bg-[#231f20] rounded-box z-10 p-2 border border-[#b5142a] dark:border-[var(--color-unibo-light)] mt-1" style="--tw-border-opacity:1;">
+        <ul tabindex="0" class="dropdown-content menu w-full bg-base-200 rounded-b-lg z-10 p-2">
           {{ range $teaching := .ycTeachings }}
           <li>
-            <label class="flex items-center gap-2 cursor-pointer py-1 px-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded">
+            <label class="flex items-center gap-2 cursor-pointer py-1 px-2 hover:bg-base-300 rounded">
               <input type="checkbox"
-                class="checkbox checkbox-sm accent-blue-500 filter-checkbox"
+                class="checkbox checkbox-sm filter-checkbox"
                 data-anno="{{$.anno}}" data-curriculum="{{$.curriculum.Value}}" data-option="{{$teaching.Code}}" data-innertext="{{$teaching.Name}}" />
-              <span class="text-sm text-neutral-800 dark:text-neutral-100">{{ $teaching.Name }}</span>
+              <span class="text-sm">{{ $teaching.Name }}</span>
             </label>
           </li>
           {{ end }}
         </ul>
       </div>
       <!-- Selected Insegnamenti as badges -->
-      <div class="my-4 flex flex-wrap gap-2 selected-insegnamenti-badges l{{.anno}}_{{.curriculum.Value}}_badges"></div>
+      <div class="mt-4 flex flex-wrap gap-2 selected-insegnamenti-badges l{{.anno}}_{{.curriculum.Value}}_badges"></div>
     </div>
     <!-- Lezioni Section -->
     <div class="mb-4 cal">
       <div class="flex items-center gap-3 mb-2">
-        <span class="icon-[mdi--book-open-variant] text-unibo"></span>
-        <h4 class="text-base md:text-lg font-semibold text-neutral-800 dark:text-neutral-100">Lezioni</h4>
+        <span class="icon-[mdi--book-open-variant]"></span>
+        <h4 class="text-base md:text-lg font-semibold">Lezioni</h4>
       </div>
 
       <div class="flex flex-col md:flex-row md:items-center gap-3">
         <!-- Calendar Link -->
-        <pre class="hidden font-mono text-xs md:text-base h-auto w-auto py-2 px-3 rounded border border-[#b5142a] dark:border-[var(--color-unibo-light)] bg-[#fff] dark:bg-[#231f20] text-[#222] dark:text-[#fff] leading-loose l{{.anno}}_{{.curriculum.Value}}"
+        <pre class="hidden font-mono text-xs md:text-base h-auto w-auto py-2 px-3 rounded border leading-loose l{{.anno}}_{{.curriculum.Value}}"
           id="l{{.anno}}_{{.curriculum.Value}}"
           title="Link del calendario in formato WebCal"
           tabindex="0" style="--tw-border-opacity:1;">/cal/{{.course.Codice}}/{{.anno}}{{if .curriculum.Value}}?curr={{.curriculum.Value}}{{end}}</pre>
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-2">
-          <button class="btn btn-sm md:btn-md flex items-center gap-1 border border-[#b5142a] dark:border-[var(--color-unibo-light)] bg-white dark:bg-white text-unibo" title="Copia" style="--tw-border-opacity:1;">
-            <span>Copia</span>
+          <button class="btn btn-sm btn-outline md:btn-md flex items-center gap-2 border" title="Copia" style="--tw-border-opacity:1;">
             <span class="icon-[heroicons--document-duplicate-solid] text-lg"></span>
+            <span>Copia</span>
           </button>
-          <a class="btn btn-sm md:btn-md open l{{.anno}}_{{.curriculum.Value}} bg-[#b5142a] dark:bg-[var(--color-unibo-light)] text-white dark:text-[#231f20] border-none" style="border:none; --tw-bg-opacity:1;">Apri online</a>
-          <a class="btn btn-sm md:btn-md bg-white dark:bg-white flex items-center gap-1 google l{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[var(--color-unibo-light)] text-unibo font-semibold" tabindex="0" role="button" style="--tw-border-opacity:1;">
-            <span>Google</span>
+          <a class="btn btn-sm btn-primary md:btn-md open l{{.anno}}_{{.curriculum.Value}}">Apri online</a>
+          <div class="divider divider-horizontal"></div>
+          <a class="btn btn-sm md:btn-md flex items-center gap-2 google l{{.anno}}_{{.curriculum.Value}} border font-semibold" tabindex="0" role="button">
             <span class="icon-[logos--google-calendar] text-lg"></span>
+            <span>Google</span>
           </a>
-          <a class="btn btn-sm md:btn-md bg-white dark:bg-white flex items-center gap-1 apple l{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[var(--color-unibo-light)] text-unibo font-semibold" tabindex="0" role="button" style="--tw-border-opacity:1;">
-            <span>Apple</span>
+          <a class="btn btn-sm md:btn-md flex items-center gap-2 apple l{{.anno}}_{{.curriculum.Value}} border font-semibold" tabindex="0" role="button">
             <span class="icon-[logos--apple] text-lg"></span>
+            <span>Apple</span>
           </a>
         </div>
       </div>
@@ -64,14 +65,14 @@
     <!-- Esami Section -->
     <div class="cal">
       <div class="flex items-center gap-3 mb-2">
-        <span class="icon-[mdi--clipboard-text-outline] text-unibo dark:text-[#e6bfc3]"></span>
-        <h4 class="text-base md:text-lg font-semibold text-neutral-800 dark:text-neutral-100">Esami</h4>
+        <span class="icon-[mdi--clipboard-text-outline]"></span>
+        <h4 class="text-base md:text-lg font-semibold">Esami</h4>
         <div class="dropdown dropdown-right dropdown-end dropdown-hover">
           <div tabindex="0" class="cursor-pointer">
-            <span class="icon-[heroicons--exclamation-triangle] text-xl" style="color:#b5142a" dark:style="color:var(--color-unibo-light)"></span>
+            <span class="icon-[heroicons--exclamation-triangle] text-xl"></span>
           </div>
-          <div tabindex="0" class="dropdown-content menu bg-neutral-50 dark:bg-neutral-900 rounded-box z-10 w-64 p-2 text-neutral-800 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700">
-            <div class="text-lg font-bold mb-1 text-unibo dark:text-[#e6bfc3]">Disclaimer:</div>
+          <div tabindex="0" class="dropdown-content menu rounded-box z-10 w-64 p-2  border">
+            <div class="text-lg font-bold mb-1 ">Disclaimer:</div>
             <div class="text-sm">Non tutti gli esami saranno visibili. La disponibilità dipende dal caricamento su AlmaEsami da parte dei docenti.</div>
           </div>
         </div>
@@ -84,18 +85,19 @@
           tabindex="0" style="--tw-border-opacity:1;">/exams/{{.course.Codice}}/{{.anno}}{{if .curriculum.Value}}?curr={{.curriculum.Value}}{{end}}</pre>
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-2">
-          <button class="btn btn-sm md:btn-md flex items-center gap-1 border border-[#b5142a] dark:border-[var(--color-unibo-light)] bg-white dark:bg-white text-unibo" title="Copia" style="--tw-border-opacity:1;">
-            <span>Copia</span>
+          <button class="btn btn-sm btn-outline md:btn-md flex items-center gap-2" title="Copia" style="--tw-border-opacity:1;">
             <span class="icon-[heroicons--document-duplicate-solid] text-lg"></span>
+            <span>Copia</span>
           </button>
-          <a class="btn btn-sm md:btn-md open e{{.anno}}_{{.curriculum.Value}} bg-[#b5142a] dark:bg-[var(--color-unibo-light)] text-white dark:text-[#231f20] border-none" style="border:none; --tw-bg-opacity:1;">Apri online</a>
-          <a class="btn btn-sm md:btn-md bg-white dark:bg-white flex items-center gap-1 google e{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[var(--color-unibo-light)] text-unibo" style="--tw-border-opacity:1;">
-            <span>Google</span>
+          <a class="btn btn-sm btn-primary md:btn-md open e{{.anno}}_{{.curriculum.Value}}">Apri online</a>
+          <div class="divider divider-horizontal"></div>
+          <a class="btn btn-sm md:btn-md flex items-center google e{{.anno}}_{{.curriculum.Value}} border" >
             <span class="icon-[logos--google-calendar] text-lg"></span>
+            <span>Google</span>
           </a>
-          <a class="btn btn-sm md:btn-md bg-white dark:bg-white flex items-center gap-1 apple e{{.anno}}_{{.curriculum.Value}} border border-[#b5142a] dark:border-[var(--color-unibo-light)] text-unibo" style="--tw-border-opacity:1;">
-            <span>Apple</span>
+          <a class="btn btn-sm md:btn-md flex items-center gap-2 apple e{{.anno}}_{{.curriculum.Value}} border">
             <span class="icon-[logos--apple] text-lg"></span>
+            <span>Apple</span>
           </a>
         </div>
       </div>
@@ -111,16 +113,21 @@
   <div class="container w-full p-6 md:p-10">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
-      <a class="btn btn-circle btn-ghost border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" href="/" title="Torna ai corsi">
+      <a class="btn btn-circle btn-ghost border hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" href="/" title="Torna ai corsi">
         <span class="icon-[heroicons--arrow-left-solid] color-unibo text-2xl" style="color:#b5142a"></span>
       </a>
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="icon-[mdi--school-outline] text-unibo dark:text-[#e6bfc3] text-2xl"></span>
+          <span class="icon-[mdi--school-outline] text-secondary text-2xl"></span>
           <span class="text-lg md:text-xl font-semibold text-neutral-800 dark:text-neutral-100">{{$course.Tipologia}} in</span>
         </div>
         <h1 class="text-2xl md:text-4xl font-extrabold mb-1 text-neutral-900 dark:text-neutral-50">{{$course.Descrizione}}</h1>
-        <a class="inline-flex items-center gap-1 text-unibo hover:underline text-sm md:text-base" href="{{$course.Url}}" target="_blank" rel="noopener" style="color:var(--color-unibo-light)">
+        <a
+          class="inline-flex items-center gap-1 text-secondary hover:underline text-sm md:text-base"
+          href="{{$course.Url}}"
+          target="_blank"
+          rel="noopener"
+        >
           <span class="icon-[mdi--link-variant]"></span>
           Link al sito del corso
         </a>
@@ -133,7 +140,7 @@
       {{/* MULTIPLE CURRICULA: split by curriculum, then by year */}}
       {{range $curriculum := $firstYearCurricula}}
         <div class="mb-12">
-          <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-unibo dark:text-[#e6bfc3]">
+          <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-secondary">
             <span class="icon-[mdi--account-school-outline]"></span>
             {{$curriculum.Label}}
           </h2>

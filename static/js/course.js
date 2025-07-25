@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         // Render badges
         badgeContainer.innerHTML = checked.length
-          ? checked.map(v => `<span class="badge badge-outline badge-sm text-unibo border-[#b5142a]">${v}</span>`).join(" ")
+          ? checked.map(v => `<span class="badge badge-outline badge-sm">${v}</span>`).join(" ")
           : "";
       }
     });

@@ -3,14 +3,14 @@
 
 {{ define "body" }}
 <div class="flex flex-col items-center min-h-screen w-full py-8 px-2 sm:px-4">
-  <div class="container bg-base-100 dark:bg-neutral rounded-2xl p-4 sm:p-8">
+  <div class="container bg-base-100 rounded-2xl p-4 sm:p-8">
     <div class="flex items-center gap-3 mb-8">
-      <span class="icon-[mdi--calendar-month-outline] text-unibo dark:text-[var(--color-unibo-light)] text-3xl sm:text-4xl"></span>
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white">AlmaCalendar</h1>
+      <span class="icon-[mdi--calendar-month-outline] text-3xl sm:text-4xl"></span>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">AlmaCalendar</h1>
     </div>
     <div class="flex flex-col md:flex-row md:items-center gap-2 mb-6 w-full">
       <label for="filter" class="mr-2 shrink-0 sm:text-lg font-medium flex items-center gap-2 whitespace-nowrap">
-          <span class="icon-[mdi--filter-variant] text-lg sm:text-xl text-unibo dark:text-[var(--color-unibo-light)]"></span>
+          <span class="icon-[mdi--filter-variant] text-lg sm:text-xl text-secondary"></span>
           Filtra i corsi:
       </label>
       <input
@@ -22,9 +22,9 @@
       >
     </div>
     <div class="overflow-x-auto w-full">
-      <table class="table min-w-full rounded-box border border-base-content/5 bg-base-100">
+      <table class="table table-zebra min-w-full rounded-box border border-base-content/5 bg-base-100">
         <thead>
-          <tr class="bg-base-200 dark:bg-neutral text-neutral-700 dark:text-neutral-200">
+          <tr class="text-secondary">
             <th class="py-2 sm:py-3 px-2 sm:px-4 text-left font-semibold">A.A.</th>
             <th class="py-2 sm:py-3 px-2 sm:px-4 text-left font-semibold">Descrizione</th>
             <th class="py-2 sm:py-3 px-2 sm:px-4 text-left font-semibold">Campus</th>
@@ -33,11 +33,11 @@
         <tbody>
         {{ range .courses }}
           {{ $course := .}}
-          <tr class="hover:bg-[var(--color-unibo-light)]/40 dark:hover:bg-[var(--color-unibo-light)]/20 transition-colors even:bg-base-200 dark:even:bg-neutral">
-            <td class="py-1 sm:py-2 px-2 sm:px-4 font-mono text-neutral-800 dark:text-neutral-200">{{.AnnoAccademico}}</td>
+          <tr>
+            <td class="py-1 sm:py-2 px-2 sm:px-4 font-mono">{{.AnnoAccademico}}</td>
             <td class="py-1 sm:py-2 px-2 sm:px-4">
-              <a class="text-unibo dark:text-[var(--color-unibo-light)] font-medium hover:underline flex items-center gap-1" href="/courses/{{$course.Codice}}" data-course="{{.Tipologia}} in {{ printf "%.100s" .Descrizione }}">
-                <span class="icon-[mdi--book-education-outline] text-unibo/70 dark:text-[var(--color-unibo-light)]/70"></span>
+              <a class="font-medium hover:underline flex items-center gap-1" href="/courses/{{$course.Codice}}" data-course="{{.Tipologia}} in {{ printf "%.100s" .Descrizione }}">
+                <span class="icon-[mdi--book-education-outline]"></span>
                 {{ $tipo := "" }}
                 {{ if eq .Tipologia "Laurea" }}
                   {{ $tipo = "LT" }}
@@ -48,10 +48,10 @@
                 {{ else }}
                   {{ $tipo = .Tipologia }}
                 {{ end }}
-                <span class="truncate block max-w-[180px] sm:max-w-none">{{$tipo}} in {{ printf "%.100s" .Descrizione }}</span>
+                <span class="truncate block max-w-[180px] sm:max-w-none">{{ printf "%.100s" .Descrizione }} ({{ $tipo }})</span>
               </a>
             </td>
-            <td class="py-1 sm:py-2 px-2 sm:px-4 text-neutral-700 dark:text-neutral-300">{{.Campus}}</td>
+            <td class="py-1 sm:py-2 px-2 sm:px-4">{{.Campus}}</td>
           </tr>
         {{ end }}
         </tbody>
