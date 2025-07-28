@@ -100,11 +100,7 @@ func setupRouter(courses unibo_integ.CoursesMap) *gin.Engine {
 	slices.SortFunc(coursesList, func(a, b unibo_integ.Course) int {
 		return b.Codice - a.Codice
 	})
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index", gin.H{
-			"courses": coursesList,
-		})
-	})
+	r.GET("/", indexPage(courses))
 
 	r.GET("/courses/:id", coursePage(courses))
 
@@ -116,6 +112,29 @@ func setupRouter(courses unibo_integ.CoursesMap) *gin.Engine {
 
 	r.GET("/exams/:id/:anno", getExams(&courses))
 	return r
+}
+
+func indexPage(courses unibo_integ.CoursesMap) func(c *gin.Context) {
+	return func(ctx *gin.Context) {
+		coursesList := courses.ToList()
+		slices.SortFunc(coursesList, func(a, b unibo_integ.Course) int {
+			return b.Codice - a.Codice
+		})
+
+		// group courses by year
+		yearCourses := make(map[string][]unibo_integ.Course)
+		for _, course := range coursesList {
+			aa := course.AnnoAccademico
+			if _, ok := yearCourses[aa]; !ok {
+				yearCourses[aa] = make([]unibo_integ.Course, 0)
+			}
+			yearCourses[aa] = append(yearCourses[aa], course)
+		}
+
+		ctx.HTML(http.StatusOK, "index", gin.H{
+			"courses": yearCourses,
+		})
+	}
 }
 
 func coursePage(courses unibo_integ.CoursesMap) func(c *gin.Context) {

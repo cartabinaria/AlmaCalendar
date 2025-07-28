@@ -21,20 +21,25 @@
         value="{{ .filter }}"
       >
     </div>
+    {{ range $year, $courses := .courses }}
+
+    <div class="text-secondary font-semibold text-lg sm:text-xl mb-2">
+      <span class="icon-[mdi--calendar-range]"></span>
+      Anno Accademico: {{ $year }}
+    </div>
+
     <div class="overflow-x-auto w-full">
       <table class="table table-zebra min-w-full rounded-box border border-base-content/5 bg-base-100">
         <thead>
           <tr class="text-secondary">
-            <th class="py-2 sm:py-3 px-2 sm:px-4 text-left font-semibold">A.A.</th>
             <th class="py-2 sm:py-3 px-2 sm:px-4 text-left font-semibold">Descrizione</th>
             <th class="py-2 sm:py-3 px-2 sm:px-4 text-left font-semibold">Campus</th>
           </tr>
         </thead>
         <tbody>
-        {{ range .courses }}
-          {{ $course := .}}
+
+        {{ range $course := $courses }}
           <tr>
-            <td class="py-1 sm:py-2 px-2 sm:px-4 font-mono">{{.AnnoAccademico}}</td>
             <td class="py-1 sm:py-2 px-2 sm:px-4">
               <a class="font-medium hover:underline flex items-center gap-1" href="/courses/{{$course.Codice}}" data-course="{{.Tipologia}} in {{ printf "%.100s" .Descrizione }}">
                 <span class="icon-[mdi--book-education-outline]"></span>
@@ -57,6 +62,8 @@
         </tbody>
       </table>
     </div>
+
+    {{ end }} <!-- End of year loop -->
     <style id="cssFilter"></style>
   </div>
 </div>
