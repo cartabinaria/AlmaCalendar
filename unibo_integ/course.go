@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/cartabinaria/unibo-go/curriculum"
 	"github.com/cartabinaria/unibo-go/timetable"
@@ -167,12 +168,41 @@ func (c Course) GetTimetable(year int, curriculum curriculum.Curriculum, period 
 		return nil, err
 	}
 
-	t, err := timetable.FetchTimetable(id.Tipologia, id.Id, curriculum.Value, year, period)
-	if err != nil {
-		return nil, err
+	if period != nil {
+		return timetable.FetchTimetable(id.Tipologia, id.Id, curriculum.Value, year, period)
 	}
 
-	return t, nil
+	// Unibo's timetable endpoint rejects unbounded requests. Fetch the current
+	// academic year in date windows and combine the results into one timetable.
+	now := time.Now()
+	academicYear := now.Year()
+	if now.Month() < time.September {
+		academicYear--
+	}
+	windowStart := time.Date(academicYear, time.September, 1, 0, 0, 0, 0, time.Local)
+	academicYearEnd := windowStart.AddDate(1, 0, 0)
+
+	var allEvents timetable.Timetable
+	for windowStart.Before(academicYearEnd) {
+		windowEnd := windowStart.AddDate(0, 0, 30)
+		if windowEnd.After(academicYearEnd) {
+			windowEnd = academicYearEnd
+		}
+
+		interval := &timetable.Interval{
+			Start: windowStart,
+			End:   windowEnd.AddDate(0, 0, -1),
+		}
+		events, err := timetable.FetchTimetable(id.Tipologia, id.Id, curriculum.Value, year, interval)
+		if err != nil {
+			return nil, fmt.Errorf("unable to retrieve timetable from %s to %s: %w",
+				interval.Start.Format("2006-01-02"), interval.End.Format("2006-01-02"), err)
+		}
+		allEvents = append(allEvents, events...)
+		windowStart = windowEnd
+	}
+
+	return allEvents, nil
 }
 
 type CoursesMap map[int]Course
