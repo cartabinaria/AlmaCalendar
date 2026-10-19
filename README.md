@@ -7,7 +7,7 @@ aggiungere al proprio calendario personale.
 
 E' necessario avere installati
 
-- go (versione 1.23 o superiore)
+- go (versione 1.25 o superiore)
 - pnpm
 
 Per compilare il progetto eseguire
