@@ -139,6 +139,31 @@
       </div>
     </div>
 
+    <details class="mb-8 rounded-xl bg-base-200 p-4">
+      <summary class="cursor-pointer font-semibold">Usare Notion Calendar e TimeTree</summary>
+      <div class="mt-4 space-y-4 text-sm">
+        <p>Queste istruzioni usano i calendari già supportati, senza una sincronizzazione diretta con AlmaCalendar.</p>
+        <section>
+          <h2 class="font-semibold mb-2">Notion Calendar</h2>
+          <ol class="list-decimal pl-5 space-y-1">
+            <li>Aggiungi il calendario di lezioni o esami con il pulsante Google qui sotto.</li>
+            <li>Collega lo stesso account Google a Notion Calendar e attiva la visualizzazione del calendario aggiunto.</li>
+          </ol>
+          <a class="text-secondary hover:underline" href="https://www.notion.com/help/manage-your-calendars-and-events" target="_blank" rel="noopener noreferrer">Guida ufficiale Notion Calendar</a>
+        </section>
+        <section>
+          <h2 class="font-semibold mb-2">TimeTree (app mobile)</h2>
+          <ol class="list-decimal pl-5 space-y-1">
+            <li>Aggiungi il calendario di lezioni o esami con il pulsante Google o Apple qui sotto.</li>
+            <li>Abilita la sincronizzazione del calendario sul telefono e consenti a TimeTree di accedere ai calendari del dispositivo.</li>
+            <li>Seleziona il calendario nei filtri della Home personale di TimeTree.</li>
+          </ol>
+          <p class="mt-2">La visualizzazione nella Home personale segue gli aggiornamenti del calendario del telefono. L'importazione in un calendario condiviso crea invece una copia: non si aggiorna automaticamente e importazioni successive possono duplicare gli eventi.</p>
+          <a class="text-secondary hover:underline" href="https://support.timetreeapp.com/hc/en-us/articles/360000629341-How-to-Use-Other-Calendars-such-as-Google-Calendar" target="_blank" rel="noopener noreferrer">Guida ufficiale TimeTree</a>
+        </section>
+      </div>
+    </details>
+
     {{$firstYear := index (anniRange $course.DurataAnni) 0}}
     {{$firstYearCurricula := index $curricula $firstYear}}
     {{if gt (len $firstYearCurricula) 1}}
